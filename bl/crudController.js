@@ -19,13 +19,13 @@ function handleError(res, cb) {
 
 exports.handleError = handleError;
 
-exports.create = function(db, collection, title, sortField, createForm) {
+exports.create = function(dbFactory, collection, title, sortField, createForm) {
 	var result = {};
 
 	var path = "/" + collection.toLowerCase().substr(0, collection.length - 1);
 	result.path = path;
 
-	var data = crud.create(db, collection);
+	var data = crud.create(dbFactory, collection);
 	result.data = data;
 
 	result.list = function(req, res) {

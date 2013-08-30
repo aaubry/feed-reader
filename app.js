@@ -14,7 +14,7 @@ var mongodb = require("mongodb"),
 	Db = mongodb.Db,
 	Server = mongodb.Server;
 
-var db = new Db("Feeds", new Server("localhost", 27017), { w: 1 });
+var dbFactory = function() { return new Db("Feeds", new Server("localhost", 27017), { w: 1 }); };
 var app = express();
 
 // all environments
@@ -35,7 +35,7 @@ if ("development" == app.get("env")) {
 }
 
 //app.get("/", routes.index);
-require("./routes/feeds").registerRoutes(app, db);
+require("./routes/feeds").registerRoutes(app, dbFactory);
 
 http.createServer(app).listen(app.get("port"), function(){
   console.log("Express server listening on port " + app.get("port"));

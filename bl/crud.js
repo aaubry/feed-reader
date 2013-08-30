@@ -1,9 +1,10 @@
 var mongodb = require("mongodb"),
 	ObjectID = mongodb.ObjectID;
 
-exports.create = function(db, collection) {
+exports.create = function(dbFactory, collection) {
 
 	var getPage = function(filter, pageNumber, sortField, cb /* ({ items: [], pages: { current, total } }) */) {
+		var db = dbFactory();
 		db.open(function(err, conn) {
 			if(err) { db.close(); cb(err, null); return; }
 
@@ -39,6 +40,7 @@ exports.create = function(db, collection) {
 	};
 
 	var getAll = function(filter, sortField, cb /* ({ items: [] }) */) {
+		var db = dbFactory();
 		db.open(function(err, conn) {
 			if(err) { db.close(); cb(err, null); return; }
 
@@ -64,6 +66,7 @@ exports.create = function(db, collection) {
 	};
 
 	var getOne = function(id, cb /* { item } */) {
+		var db = dbFactory();
 		db.open(function(err, conn) {
 			if(err) { db.close(); cb(err, null); return; }
 
@@ -83,6 +86,7 @@ exports.create = function(db, collection) {
 	};
 
 	var updateOne = function(id, item, cb /* { } */) {
+		var db = dbFactory();
 		db.open(function(err, conn) {
 			if(err) { db.close(); cb(err, null); return; }
 
@@ -102,6 +106,7 @@ exports.create = function(db, collection) {
 	};
 
 	var removeOne = function(id, cb /* { } */) {
+		var db = dbFactory();
 		db.open(function(err, conn) {
 			if(err) { db.close(); cb(err, null); return; }
 
@@ -117,6 +122,7 @@ exports.create = function(db, collection) {
 	};
 
 	var insert = function(item, cb /* { } */) {
+		var db = dbFactory();
 		db.open(function(err, conn) {
 			if(err) { db.close(); cb(err, null); return; }
 

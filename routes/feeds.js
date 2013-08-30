@@ -6,10 +6,16 @@ var forms = require("forms"),
 var crudController = require("../bl/crudController"),
 	handleError = crudController.handleError;
 
+var crud = require("../bl/crud");
+
 var mongodb = require("mongodb"),
 	ObjectID = mongodb.ObjectID;
 
 var pipeline = require("../bl/pipeline");
+
+var crypto = require("crypto");
+
+var async = require("async");
 
 var fields_object = function (opt) {
     if (!opt) { opt = {}; }
@@ -38,8 +44,8 @@ var fields_object = function (opt) {
     return f;
 };
 
-exports.registerRoutes = function(app, db) {
-	var controller = crudController.create(db, "Feeds", "Feed", "name", function(cb) {
+exports.registerRoutes = function(app, dbFactory) {
+	var controller = crudController.create(dbFactory, "Feeds", "Feed", "name", function(cb) {
 		cb(null, forms.create({
 			name: fields.string({required: true}),
 			pipeline: fields_object({required: true, widget: widgets.textarea()})
@@ -58,10 +64,31 @@ exports.registerRoutes = function(app, db) {
 			function pipeline_result_available(err, items) {
 				if(err) return res.send(500, { error: err });
 
-				
+				var feedItems = crud.create(dbFactory, "Items");
+				async.each(items, store_item, handleError(res, all_items_stored));
 
-				//console.log(items);
-				res.render("feeds/view", { title: feed.item.name, items: items });
+				function store_item(item, cb) {
+					var feedItem = {
+						_id: crypto.createHash("md5").update(item.guid).digest("hex"),
+						feedId: id,
+
+						title: item.title,
+						body: item.body,
+						guid: item.guid,
+						link: item.link,
+						imageUrl: item.imageUrl
+					};
+
+					feedItems.insert(feedItem, item_stored);
+
+					function item_stored(err) {
+						cb(err.code == 11000 ? null : err);
+					}
+				}
+
+				function all_items_stored() {
+					res.render("feeds/view", { title: feed.item.name, items: items });
+				}
 			}
 		}
 	};
