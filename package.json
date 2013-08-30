@@ -7,9 +7,11 @@
 	},
 	"dependencies": {
 		"express": "3.2.6",
+		"express-ejs-layouts": "*",
 		"ejs": "*",
 		"request": "*",
 		"libxmljs": "*",
-		"mongodb": "*"
+		"mongodb": "*",
+		"forms": "*"
 	}
 }

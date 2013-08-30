@@ -1,0 +1,34 @@
+<a href="<%= path %>/create">Create</a>
+<table>
+	<thead>
+		<tr>
+			<th></th>
+			<% for(var name in form.fields) {
+				var field = form.fields[name]; %>
+				<th><%= field.labelText(field.name) %></th>
+			<% } %>
+		</tr>
+	</thead>
+	<tbody>
+		<% for(var i = 0; i < items.length; ++i) { var item = items[i]; %>
+			<tr>
+				<td>
+					<a href="<%= path %>/<%= item._id %>">Edit</a>
+				</td>
+				<% for(var name in form.fields) { %>
+					<td><%= item[name] %></td>
+				<% } %>
+			</tr>
+		<% } %>
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="3">
+				<% for(var i = 1; i <= pages.total; ++i) { %>
+					<a href="?page=<%= i %>"><%= i %></a>
+				<% } %>
+			</td>
+		</tr>
+	</tfoot>
+</table>
+
