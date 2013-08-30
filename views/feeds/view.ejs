@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+	<ul class="feed-items">
+		<% items.forEach(function(i) { %>
+			<li>
+				<h2 title="<%= i.guid %>"><%= i.title %></h2>
+				<% if(i.imageUrl && i.imageUrl.length > 0) { %>
+					<img src="<%= i.imageUrl %>" />
+				<% } %>
+				<div><%- i.body %></div>
+			</li>
+		<% }) %>
+	</ul>
+  </body>
+</html>
