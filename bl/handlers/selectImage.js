@@ -1,4 +1,4 @@
-var async = require("../async");
+var async = require("async");
 var phantom = require("../phantom");
 var crypto = require("crypto");
 var fs = require("fs");
@@ -7,13 +7,15 @@ var fs = require("fs");
 exports.handler = function(data, args, cb) {
 
 	var baseName = "tmp/" + crypto.randomBytes(4).readUInt32LE(0) + "_";
+	var idx = 0;
 	async.map(data, select_image, cb);
 
-	function select_image(item, idx, cb) {
+	function select_image(item, cb) {
 
-		console.log("EXTRACT IMAGE %s", idx);
+		var id = ++idx;
+		console.log("EXTRACT IMAGE %s", id);
 
-		var fileName = baseName + idx + ".html";
+		var fileName = baseName + id + ".html";
 		fs.writeFile(fileName, item[args.htmlField], file_written);
 
 		function file_written(err) {
@@ -25,8 +27,8 @@ exports.handler = function(data, args, cb) {
 				fs.unlink(fileName, function(err) { if(err) console.log(err); });
 				if(err) return cb(err);
 
-				console.log("EXTRACT IMAGE %s => DONE", idx);
-				item[args.targetField] = imageUrl;
+				console.log("EXTRACT IMAGE %s => DONE", id);
+				item[args.targetField] = imageUrl.replace(/[\r\n]/g, "");
 				cb(null, item);
 			}
 		}

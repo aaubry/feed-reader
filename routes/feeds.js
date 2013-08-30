@@ -58,6 +58,8 @@ exports.registerRoutes = function(app, db) {
 			function pipeline_result_available(err, items) {
 				if(err) return res.send(500, { error: err });
 
+				
+
 				//console.log(items);
 				res.render("feeds/view", { title: feed.item.name, items: items });
 			}
