@@ -68,6 +68,10 @@ exports.registerRoutes = function(app, dbFactory) {
 				async.each(items, store_item, handleError(res, all_items_stored));
 
 				function store_item(item, cb) {
+
+					var pubDate	= new Date(item.pubDate);
+					if(!(pubDate.valueOf() > 0)) pubDate = new Date();
+
 					var feedItem = {
 						_id: crypto.createHash("md5").update(item.guid).digest("hex"),
 						feedId: id,
@@ -76,6 +80,7 @@ exports.registerRoutes = function(app, dbFactory) {
 						body: item.body,
 						guid: item.guid,
 						link: item.link,
+						pubDate: pubDate,
 						imageUrl: item.imageUrl
 					};
 
@@ -104,7 +109,7 @@ exports.registerRoutes = function(app, dbFactory) {
 Coding Horror
 [
   {"fetchFeed":"http://feeds.feedburner.com/codinghorror/"},
-  {"map":{"title":"title","body":"description","guid":"guid","link":"link"}},
+  {"map":{"title":"title","body":"description","guid":"guid","link":"link","pubDate":"pubDate"}},
   {"selectImage":{"htmlField":"body","targetField":"imageUrl"}}
 ]
 
@@ -115,6 +120,8 @@ Hacker News
   { "map": { "title": "title", "body": "body", "guid": "comments", "link": "link" } },
   { "selectImage": { "htmlField": "body", "targetField": "imageUrl" } }
 ]
+
+http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest
 
 */
 
