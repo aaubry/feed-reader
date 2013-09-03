@@ -13,6 +13,7 @@
 		"request": "*",
 		"libxmljs": "*",
 		"mongodb": "*",
-		"forms": "*"
+		"forms": "*",
+		"filed": "*"
 	}
 }

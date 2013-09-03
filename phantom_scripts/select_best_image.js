@@ -3,11 +3,10 @@ var system = require("system");
 
 var url = system.args[1];
 
-page.settings.javascriptEnabled = true;
-page.settings.loadImages = true;
-
 // page.onConsoleMessage = function(msg) { console.log("console:", msg); };
 
+page.settings.javascriptEnabled = true;
+page.settings.loadImages = true;
 page.open(url, page_loaded);
 
 function page_loaded(status) {
@@ -32,6 +31,7 @@ function page_loaded(status) {
 					largestImageSize = size;
 				}
 			}
+
 			return largestImage.src
 		}
 		catch(e) {

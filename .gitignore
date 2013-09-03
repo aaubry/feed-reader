@@ -11,6 +11,7 @@ pids
 logs
 results
 tmp
+public/thumbs/*.png
 
 npm-debug.log
 node_modules

@@ -9,3 +9,44 @@ label {
 	display: inline-block;	
 	width: 150px;
 }
+
+ul.feed-items {
+}
+
+ul.feed-items li {
+    background-color: white;
+    border: 1px solid black;
+    display: block;
+    float: left;
+    height: 100px;
+    margin: 1px;
+    padding: 0;
+    position: relative;
+    width: 100px;
+}
+
+ul.feed-items li span {
+    background-color: rgba(50, 50, 50, 0.6);
+    bottom: 0;
+    color: white;
+    font-size: 12px;
+    left: 0;
+    overflow: hidden;
+    padding: 1px;
+    position: absolute;
+    right: 0;
+    text-overflow: ellipsis;
+    top: 68px;
+    z-index: 1;
+}
+
+ul.feed-items li img {
+	bottom: 0;
+	height: auto;
+	left: 0;
+	margin: auto;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+

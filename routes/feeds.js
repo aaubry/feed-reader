@@ -3,8 +3,8 @@ var forms = require("forms"),
     validators = forms.validators,
 	widgets = forms.widgets;
 
-var crudController = require("../bl/crudController"),
-	handleError = crudController.handleError;
+var crudController = require("../bl/crudController");
+var handleAppError = require("../bl/error").handleAppError;
 
 var crud = require("../bl/crud");
 
@@ -14,8 +14,11 @@ var mongodb = require("mongodb"),
 var pipeline = require("../bl/pipeline");
 
 var crypto = require("crypto");
-
+var request = require("request");
+var filed = require("filed");
 var async = require("async");
+var spawn = require("child_process").spawn;
+var fs = require("fs");
 
 var fields_object = function (opt) {
     if (!opt) { opt = {}; }
@@ -55,7 +58,7 @@ exports.registerRoutes = function(app, dbFactory) {
 	controller.poll = function(req, res) {
 
 		var id = ObjectID.createFromHexString(req.params.id);
-		controller.data.getOne(id, handleError(res, feed_retrieved));
+		controller.data.getOne(id, handleAppError(res, feed_retrieved));
 
 		function feed_retrieved(feed) {
 
@@ -65,15 +68,19 @@ exports.registerRoutes = function(app, dbFactory) {
 				if(err) return res.send(500, { error: err });
 
 				var feedItems = crud.create(dbFactory, "Items");
-				async.each(items, store_item, handleError(res, all_items_stored));
+				async.each(items, store_item, handleAppError(res, all_items_stored));
+
+				function process_item(item, cb) {
+				}
 
 				function store_item(item, cb) {
 
 					var pubDate	= new Date(item.pubDate);
 					if(!(pubDate.valueOf() > 0)) pubDate = new Date();
 
+					var itemId = crypto.createHash("md5").update(item.guid).digest("hex");
 					var feedItem = {
-						_id: crypto.createHash("md5").update(item.guid).digest("hex"),
+						_id: itemId,
 						feedId: id,
 
 						title: item.title,
@@ -84,7 +91,30 @@ exports.registerRoutes = function(app, dbFactory) {
 						imageUrl: item.imageUrl
 					};
 
-					feedItems.insert(feedItem, item_stored);
+					if(item.imageUrl != null && item.imageUrl.length > 0) {
+						feedItem.thumbUrl = "/thumbs/" + itemId + ".png";
+
+						var sourceFile = "tmp/" + itemId;
+						var destinationFile = "public" + feedItem.thumbUrl;
+
+						var downloadFile = filed(sourceFile);
+						downloadFile.on("end", image_downloaded);
+						downloadFile.on("error", cb);
+						request(item.imageUrl).pipe(downloadFile);
+
+						function image_downloaded() {
+							var process = spawn("convert", ["-format", "png", "-thumbnail", "100x100", sourceFile, destinationFile]);
+							process.on("close", on_process_closed);
+
+							function on_process_closed(code) {
+								fs.unlink(sourceFile, function(err) { if(err) console.log(err); });
+								if(code != 0) return cb("mogrify exited with code " + code, null);
+								feedItems.insert(feedItem, item_stored);
+							}						
+						}
+					} else {
+						feedItems.insert(feedItem, item_stored);
+					}
 
 					function item_stored(err) {
 						cb(err == null || err.code == 11000 ? null : err);
@@ -120,6 +150,16 @@ Hacker News
   { "map": { "title": "title", "body": "body", "guid": "comments", "link": "link" } },
   { "selectImage": { "htmlField": "body", "targetField": "imageUrl" } }
 ]
+
+Test
+[
+  {"fetchFeed":"http://feeds.feedburner.com/codinghorror/"},
+  {"take": 1},
+  {"map":{"title":"title","body":"description","guid":"guid","link":"link","pubDate":"pubDate"}},
+  {"selectImage":{"htmlField":"body","targetField":"imageUrl"}},
+  {"thumbnail":{"sourceField":"imageUrl","targetField":"imageUrl"}}
+]
+
 
 http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest
 

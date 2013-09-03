@@ -3,21 +3,7 @@ var crud = require("./crud");
 var mongodb = require("mongodb"),
 	ObjectID = mongodb.ObjectID;
 
-function handleError(res, cb) {
-	if(res == null) throw new Error("handleError: res is null");
-	if(cb == null) throw new Error("handleError: cb is null");
-	if(typeof(cb) != "function") throw new Error("handleError: cb is not a function: " + typeof(cb));
-
-	return function(err, val) {
-		if(err) {
-			res.send(500, { error: err });
-		} else {
-			cb(val);
-		}
-	};
-};
-
-exports.handleError = handleError;
+var handleError = require("../bl/error").handleAppError;
 
 exports.create = function(dbFactory, collection, title, sortField, createForm) {
 	var result = {};
