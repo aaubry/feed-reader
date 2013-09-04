@@ -4,16 +4,16 @@ var libxmljs = require("libxmljs");
 var extractors = {};
 
 // args = "http://example.com"
-exports.handler = function(data, url, cb) {
+exports.handler = function(item, url, cb) {
 
-	console.log("GET %s", url);
+	//console.log("GET %s", url);
 	request(url, response_available);
 
 	function response_available(err, response, body) {
 		if(err) return cb(err, null);
 		if(response.statusCode != 200) return cb("HTTP status code " + response.statusCode + " received.", null);
 
-		console.log("GET %s => %d", url, response.statusCode);
+		//console.log("GET %s => %d", url, response.statusCode);
 
 		var mediaType = "?";
 		var contentType = response.headers["content-type"];

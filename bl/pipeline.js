@@ -1,6 +1,9 @@
+var async = require("async");
+var TaskScheduler = require("./task").TaskScheduler;
+
 var handlers = {};
 
-["fetchFeed", "fetchPages", "map", "take", "selectImage"].forEach(function(n) {
+["fetchFeed", "fetchPages", "map", "selectImage"].forEach(function(n) {
 	handlers[n] = require("./handlers/" + n).handler;
 	if(handlers[n] == null) {
 		throw "Badly defined pipeline handler '" + n + "'";
@@ -8,26 +11,71 @@ var handlers = {};
 });
 
 exports.execute = function(pipeline, cb) {
-	var idx = 0;
-	
-	execute_next_step(null, null);
-	
-	function execute_next_step(err, data) {
-		if(err) return cb(err, null);
-		if(idx >= pipeline.length) return cb(null, data);
+	var initialStep = parsePipeline(pipeline);
 
-		var step = pipeline[idx++];
-		console.log(step);
+	var completedSteps = 0;
+	var estimatedSteps = initialStep.remaining;
 
-		for(var handlerName in step) {
+	var scheduler = new TaskScheduler(5, cb);
+	scheduler.schedule(execute_step, initialStep, null);
+
+	function execute_step(step, item, cb) {
+		step.handler(item, step.args, step_complete);
+
+		function step_complete(err, items) {
+			++completedSteps;
+
+			if(step.next && err == null) {
+				if(items == null) {
+					items = [];
+				} else if(items.length == undefined) {
+					items = [items];
+				}
+
+				estimatedSteps += (items.length - 1) * step.next.remaining;
+			}
+
+			console.log("Completed %d steps of %d - %s", completedSteps, estimatedSteps, step.name);
+
+			if(step.next && err == null) {
+				items.forEach(function(i) {	
+					scheduler.schedule(execute_step, step.next, i);
+				});
+			}
+
+			cb(err);
+		}
+	}
+}
+
+function parsePipeline(pipeline) {
+	if(pipeline.length == 0) throw "Empty pipeline";
+
+	var steps = pipeline.map(function(s) {
+		if(typeof(s) == "function") {
+			var name = /function (\w+)/.exec(s)[1];
+			return { handler: s, args: null, name: name };
+		}
+		for(var handlerName in s) {
 			var handler = handlers[handlerName];
 			if(handler == null) {
 				console.log(handlers);
-				return cb("Invalid pipeline element '" + handlerName + "'");
+				throw "Invalid pipeline element '" + handlerName + "'";
 			}
-			handler(data, step[handlerName], execute_next_step);
-			break;
+			return { handler: handler, args: s[handlerName], name: handlerName };
 		}
+		console.log(s);
+		throw "Invalid pipeline element '???'";
+	});
+
+	for(var i = 1; i < steps.length; ++i) {
+		steps[i - 1].next = steps[i];
 	}
-};
+
+	for(var i = 0; i < steps.length; ++i) {
+		steps[i].remaining = steps.length - i;
+	}
+
+	return steps[0];
+}
 
