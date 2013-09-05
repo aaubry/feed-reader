@@ -65,10 +65,13 @@ exports.registerRoutes = function(app, dbFactory) {
 		function feed_retrieved(feed) {
 
 			var finalSteps = [format_item, generate_thumbnail, store_item];
-			pipeline.execute(feed.item.pipeline.concat(finalSteps), pipeline_complete);
+			pipeline.execute(
+				feed.item.pipeline.concat(finalSteps),
+				{ db: feedItems },
+				pipeline_complete
+			);
 
-			function format_item(item, data, cb) {
-				var itemId = crypto.createHash("md5").update(item.guid).digest("hex");
+			function format_item(item, data, context, cb) {
 				var pubDate	= new Date(item.pubDate);
 				if(!(pubDate.valueOf() > 0)) pubDate = new Date();
 
@@ -87,7 +90,7 @@ exports.registerRoutes = function(app, dbFactory) {
 				cb(null, feedItem);
 			}
 
-			function generate_thumbnail(item, data, cb) {
+			function generate_thumbnail(item, data, context, cb) {
 				if(item.imageUrl != null && item.imageUrl.length > 0) {
 					item.thumbUrl = "/thumbs/" + item._id + ".png";
 
@@ -114,7 +117,7 @@ exports.registerRoutes = function(app, dbFactory) {
 				}
 			}
 
-			function store_item(item, data, cb) {
+			function store_item(item, data, context, cb) {
 				feedItems.insert(item, item_stored);
 
 				function item_stored(err) {

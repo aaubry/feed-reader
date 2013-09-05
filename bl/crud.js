@@ -85,6 +85,27 @@ exports.create = function(dbFactory, collection) {
 		});
 	};
 
+	var exists = function(id, cb /* bool */) {
+		var db = dbFactory();
+		db.open(function(err, conn) {
+			if(err) { db.close(); return cb(err, null); }
+
+			conn.collection(collection, function(err, coll) {
+				if(err) { db.close(); return cb(err, null); }
+
+				coll.find({ _id: id }, { _id: true }, { limit: 1 }, function(err, cursor) {
+					if(err) { db.close(); return cb(err, null); }
+
+					cursor.count(function(err, total) {
+						cursor.close();
+						db.close();
+						cb(err, total != 0);
+					});
+				});
+			});
+		});
+	};
+
 	var updateOne = function(id, item, cb /* { } */) {
 		var db = dbFactory();
 		db.open(function(err, conn) {
@@ -143,6 +164,7 @@ exports.create = function(dbFactory, collection) {
 		getOne: getOne,
 		updateOne: updateOne,
 		removeOne: removeOne,
-		insert: insert
+		insert: insert,
+		exists: exists
 	};
 };

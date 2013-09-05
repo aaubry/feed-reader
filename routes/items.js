@@ -14,6 +14,7 @@ var mongodb = require("mongodb"),
 exports.registerRoutes = function(app, dbFactory) {
 
 	app.get("/item", list);
+	app.get("/item/:id", view);
 
 	function list(req, res) {
 
@@ -48,5 +49,43 @@ exports.registerRoutes = function(app, dbFactory) {
 			}
 		}
 	}
+
+	function view(req, res) {
+		var db = dbFactory();
+		db.open(closeOnError(db, handleAppError(res, db_opened)));
+
+		function db_opened(conn) {
+			conn.collection("Items", closeOnError(db, handleAppError(res, collection_opened)));
+
+			function collection_opened(coll) {
+				var options = {
+					limit: 1
+				};
+
+				var fields = {
+					title: true,
+					body: true,
+					link: true,
+					pubDate: true
+				};
+
+				var cursor = coll.find({ _id: req.params.id }, fields, options);
+				cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
+
+				function items_retrieved(items) {
+					if(items.length != 1) {
+						res.send(404, { error: "Not found" });
+					}
+
+					var item = items[0];
+					res.render("items/view", {
+						title: item.title,
+						item: item
+					});
+				}
+			}
+		}
+	}
+
 };
 

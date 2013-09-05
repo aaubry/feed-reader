@@ -1,8 +1,17 @@
-function TaskScheduler(maxConcurrency, onQueueEmpty) {
+
+// options: { maxConcurrency = 5, mode = "fifo|lifo" }
+function TaskScheduler(options, onQueueEmpty) {
 	this.queue = [];
-	this.maxConcurrency = maxConcurrency;
 	this.runningTaskCount = 0;
 	this.onQueueEmpty = onQueueEmpty;
+
+	var availableModes = {
+		fifo: Array.prototype.shift,
+		lifo: Array.prototype.pop,
+	};
+
+	this.dequeue = availableModes[options.mode || "fifo"];
+	this.maxConcurrency = options.maxConcurrency || 5;
 }
 
 TaskScheduler.prototype.schedule = function(task /* task(arg1, arg2, cb), arg1, arg2 */) {
@@ -20,7 +29,7 @@ TaskScheduler.prototype.runNextTask = function() {
 	}
 
 	++this.runningTaskCount;
-	var nextTask = this.queue.shift();
+	var nextTask = this.dequeue.call(this.queue);
 	
 	var self = this;
 	nextTask.args.push(function(err) {

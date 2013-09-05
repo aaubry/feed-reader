@@ -3,24 +3,28 @@ var TaskScheduler = require("./task").TaskScheduler;
 
 var handlers = {};
 
-["fetchFeed", "fetchPages", "map", "selectImage"].forEach(function(n) {
+["fetchFeed", "fetchPages", "map", "selectImage", "excludeExisting"].forEach(function(n) {
 	handlers[n] = require("./handlers/" + n).handler;
 	if(handlers[n] == null) {
 		throw "Badly defined pipeline handler '" + n + "'";
 	}
 });
 
-exports.execute = function(pipeline, cb) {
+exports.execute = function(pipeline, context, cb) {
 	var initialStep = parsePipeline(pipeline);
 
 	var completedSteps = 0;
 	var estimatedSteps = initialStep.remaining;
 
-	var scheduler = new TaskScheduler(5, cb);
+	var scheduler = new TaskScheduler({
+		maxConcurrency: 5,
+		mode: "lifo"
+	}, cb);
+
 	scheduler.schedule(execute_step, initialStep, null);
 
 	function execute_step(step, item, cb) {
-		step.handler(item, step.args, step_complete);
+		step.handler(item, step.args, context, step_complete);
 
 		function step_complete(err, items) {
 			++completedSteps;

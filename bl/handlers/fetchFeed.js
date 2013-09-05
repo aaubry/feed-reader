@@ -3,28 +3,29 @@ var libxmljs = require("libxmljs");
 
 var extractors = {};
 
-// args = "http://example.com"
-exports.handler = function(item, url, cb) {
+// args = { url: "http://example.com" }
+exports.handler = function(item, args, context, cb) {
 
-	//console.log("GET %s", url);
-	request(url, response_available);
+	try {
+		request(args.url, response_available);
+	} catch(err) { return cb(err); }
 
 	function response_available(err, response, body) {
-		if(err) return cb(err, null);
-		if(response.statusCode != 200) return cb("HTTP status code " + response.statusCode + " received.", null);
+		try {
+			if(err) return cb(err, null);
+			if(response.statusCode != 200) return cb("HTTP status code " + response.statusCode + " received.", null);
 
-		//console.log("GET %s => %d", url, response.statusCode);
+			var mediaType = "?";
+			var contentType = response.headers["content-type"];
+			if(contentType) {
+				mediaType = contentType.split(";")[0];
+			}
 
-		var mediaType = "?";
-		var contentType = response.headers["content-type"];
-		if(contentType) {
-			mediaType = contentType.split(";")[0];
-		}
+			var extractor = extractors[mediaType];
+			if(!extractor) return cb("No handler for media type: " + mediaType, null);
 
-		var extractor = extractors[mediaType];
-		if(!extractor) return cb("No handler for media type: " + mediaType, null);
-
-		extractor(body, cb);
+			extractor(body, cb);
+		} catch(err) { return cb(err); }
 	}
 };
 
