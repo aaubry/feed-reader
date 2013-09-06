@@ -144,28 +144,20 @@ exports.registerRoutes = function(app, dbFactory) {
 
 Coding Horror
 [
-  {"fetchFeed":"http://feeds.feedburner.com/codinghorror/"},
+  {"fetchFeed": { "url":"http://feeds.feedburner.com/codinghorror/" }},
   {"map":{"title":"title","body":"description","guid":"guid","link":"link","pubDate":"pubDate"}},
+  {"excludeExisting":null},
   {"selectImage":{"htmlField":"body","targetField":"imageUrl"}}
 ]
 
 Hacker News
 [
-  { "fetchFeed": "https://news.ycombinator.com/rss" },
+  { "fetchFeed": { "url":"https://news.ycombinator.com/rss"} },
+  { "map": { "title": "title", "guid": "comments", "link": "link" } },
+  {"excludeExisting":null},
   { "fetchPages": { "urlField": "link", "targetField": "body" } },
-  { "map": { "title": "title", "body": "body", "guid": "comments", "link": "link" } },
   { "selectImage": { "htmlField": "body", "targetField": "imageUrl" } }
 ]
-
-Test
-[
-  {"fetchFeed":"http://feeds.feedburner.com/codinghorror/"},
-  {"take": 1},
-  {"map":{"title":"title","body":"description","guid":"guid","link":"link","pubDate":"pubDate"}},
-  {"selectImage":{"htmlField":"body","targetField":"imageUrl"}},
-  {"thumbnail":{"sourceField":"imageUrl","targetField":"imageUrl"}}
-]
-
 
 http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest
 

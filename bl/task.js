@@ -33,7 +33,7 @@ TaskScheduler.prototype.runNextTask = function() {
 	
 	var self = this;
 	nextTask.args.push(function(err) {
-		if(err) console.log("Task error:", err);
+		if(err) console.log("Task error: %s", err.stack);
 
 		--self.runningTaskCount;
 		self.runNextTask();
