@@ -20,3 +20,5 @@ exports.handler = function(item, args, context, cb) {
 		} catch(err) { return cb(err); }
 	}
 };
+
+exports.handler.weight = 3;

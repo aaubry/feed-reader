@@ -21,7 +21,7 @@ exports.execute = function(pipeline, context, cb) {
 		mode: "lifo"
 	}, cb);
 
-	scheduler.schedule(execute_step, initialStep, null);
+	scheduler.schedule(execute_step, initialStep.weight, initialStep.name, initialStep, null);
 
 	function execute_step(step, item, cb) {
 		step.handler(item, step.args, context, step_complete);
@@ -29,21 +29,25 @@ exports.execute = function(pipeline, context, cb) {
 		function step_complete(err, items) {
 			++completedSteps;
 
-			if(step.next && err == null) {
-				if(items == null) {
-					items = [];
-				} else if(items.length == undefined) {
-					items = [items];
-				}
+			if(step.next) {
+				if(err == null) {
+					if(items == null) {
+						items = [];
+					} else if(items.length == undefined) {
+						items = [items];
+					}
 
-				estimatedSteps += (items.length - 1) * step.next.remaining;
+					estimatedSteps += (items.length - 1) * step.next.remaining;
+				} else {
+					estimatedSteps -= step.next.remaining;
+				}
 			}
 
-			console.log("Completed %d steps of %d - %s", completedSteps, estimatedSteps, step.name);
+			console.log("Completed %d steps of %d", completedSteps, estimatedSteps);
 
 			if(step.next && err == null) {
 				items.forEach(function(i) {	
-					scheduler.schedule(execute_step, step.next, i);
+					scheduler.schedule(execute_step, step.next.weight, step.next.name, step.next, i);
 				});
 			}
 
@@ -78,6 +82,7 @@ function parsePipeline(pipeline) {
 
 	for(var i = 0; i < steps.length; ++i) {
 		steps[i].remaining = steps.length - i;
+		steps[i].weight = steps[i].handler.weight || 1;
 	}
 
 	return steps[0];

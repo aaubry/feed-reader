@@ -29,5 +29,4 @@ exports.handler = function(item, args, context, cb) {
 	}
 };
 
-
-
+exports.handler.weight = 3;

@@ -29,6 +29,8 @@ exports.handler = function(item, args, context, cb) {
 	}
 };
 
+exports.handler.weight = 3;
+
 extractors["application/rss+xml"] = function(body, cb) {
 	extract_rss(libxmljs.parseXml(body), cb);
 };

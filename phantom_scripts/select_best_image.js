@@ -27,11 +27,13 @@ function page_loaded(status) {
 
 			for(var i = 0; i < imgs.length; ++i) {
 				var img = imgs[i];
-
-				var size = img.offsetWidth * img.offsetHeight;
-				if(size > bestImageSize) {
-					bestImage = img;
-					bestImageSize = size;
+				
+				if(img.offsetWidth >= width * 0.8 && img.offsetHeight >= height * 0.8) {
+					var size = img.offsetWidth * img.offsetHeight;
+					if(size > bestImageSize) {
+						bestImage = img;
+						bestImageSize = size;
+					}
 				}
 			}
 
@@ -39,8 +41,8 @@ function page_loaded(status) {
 			canvas.width = width;
 			canvas.height = height;
 			
-			var scalingX = width / bestImage.width;
-			var scalingY = height / bestImage.height;
+			var scalingX = width / bestImage.offsetWidth;
+			var scalingY = height / bestImage.offsetHeight;
 			
 			var scaling;
 			if(scalingX < scalingY) {
@@ -51,8 +53,8 @@ function page_loaded(status) {
 				scaling = ratio < 0.8 ? scalingY : scalingX;
 			}
 			
-			var imageWidth = Math.round(bestImage.width * scaling);
-			var imageHeight = Math.round(bestImage.height * scaling);
+			var imageWidth = Math.round(bestImage.offsetWidth * scaling);
+			var imageHeight = Math.round(bestImage.offsetHeight * scaling);
 	
 			var context = canvas.getContext("2d");
 			var cx = (width - imageWidth) / 2;
