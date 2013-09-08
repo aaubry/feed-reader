@@ -7,6 +7,7 @@ exports.execute = function(scriptFileName /*, arg1, arg2, arg3, cb*/) {
 	args[0] = "phantom_scripts/" + args[0];
 
 	var cb = args.pop();
+	args.unshift("--web-security=no");
 
 	var output = [];
 	var process = spawn("phantomjs", args);

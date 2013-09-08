@@ -12,6 +12,7 @@ page.settings.javascriptEnabled = true;
 page.settings.loadImages = false;
 
 //page.onConsoleMessage = function(msg) { console.log("console:", msg); };
+page.onError = function(err) { /* Ignore errors */ }
 
 page.open(url, page_loaded);
 

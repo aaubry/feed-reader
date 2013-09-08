@@ -14,10 +14,7 @@ var mongodb = require("mongodb"),
 var pipeline = require("../bl/pipeline");
 
 var crypto = require("crypto");
-var request = require("request");
-var filed = require("filed");
 var async = require("async");
-var spawn = require("child_process").spawn;
 var fs = require("fs");
 
 var fields_object = function (opt) {
@@ -63,8 +60,9 @@ exports.registerRoutes = function(app, dbFactory) {
 		var feedItems = crud.create(dbFactory, "Items");
 
 		function feed_retrieved(feed) {
+			if(feed.item == null) return res.send(404, { error: "Not found" });
 
-			var finalSteps = [format_item, generate_thumbnail, store_item];
+			var finalSteps = [format_item, save_thumbnail, store_item];
 			pipeline.execute(
 				feed.item.pipeline.concat(finalSteps),
 				{ db: feedItems },
@@ -72,53 +70,49 @@ exports.registerRoutes = function(app, dbFactory) {
 			);
 
 			function format_item(item, data, context, cb) {
-				var pubDate	= new Date(item.pubDate);
-				if(!(pubDate.valueOf() > 0)) pubDate = new Date();
+				try  {
+					var pubDate	= new Date(item.pubDate);
+					if(!(pubDate.valueOf() > 0)) pubDate = new Date();
 
-				var itemId = crypto.createHash("md5").update(item.guid).digest("hex");
-				var feedItem = {
-					_id: itemId,
-					feedId: id,
+					var itemId = crypto.createHash("md5").update(item.guid).digest("hex");
+					var feedItem = {
+						_id: itemId,
+						feedId: id,
 
-					title: item.title,
-					body: item.body,
-					guid: item.guid,
-					link: item.link,
-					pubDate: pubDate,
-					imageUrl: item.imageUrl
-				};
-				cb(null, feedItem);
+						title: item.title,
+						body: item.body,
+						guid: item.guid,
+						link: item.link,
+						pubDate: pubDate,
+						imageData: item.imageData
+					};
+					cb(null, feedItem);
+				} catch(err) { cb(err); }
 			}
 
-			function generate_thumbnail(item, data, context, cb) {
-				if(item.imageUrl != null && item.imageUrl.length > 0) {
-					item.thumbUrl = "/thumbs/" + item._id + ".png";
-
-					var sourceFile = "tmp/" + item._id;
-					var destinationFile = "public" + item.thumbUrl;
-
-					var downloadFile = filed(sourceFile);
-					downloadFile.on("end", image_downloaded);
-					downloadFile.on("error", cb);
-					request(item.imageUrl).pipe(downloadFile);
-
-					function image_downloaded() {
-						var process = spawn("convert", ["-format", "png", "-thumbnail", "100x100", sourceFile, destinationFile]);
-						process.on("close", on_process_closed);
-
-						function on_process_closed(code) {
-							fs.unlink(sourceFile, function(err) { if(err) console.log(err); });
-							if(code != 0) return cb("mogrify exited with code " + code, null);
-							cb(null, item);
-						}						
+			function save_thumbnail(item, data, context, cb) {
+				try {
+					if(item.imageData != null) {
+						item.thumbUrl = "/thumbs/" + item._id + ".png";
+						
+						var destinationFile = "public" + item.thumbUrl;
+						var stream = fs.createWriteStream(destinationFile);
+						stream.end(item.imageData, null, image_written);
+						
+						function image_written(err) {
+							delete item.imageData;
+							cb(err, item);
+						}
+					} else {
+						cb(null, item);
 					}
-				} else {
-					cb(null, item);
-				}
+				} catch(err) { cb(err); }
 			}
 
 			function store_item(item, data, context, cb) {
-				feedItems.insert(item, item_stored);
+				try {
+					feedItems.insert(item, item_stored);
+				} catch(err) { cb(err); }
 
 				function item_stored(err) {
 					cb(err == null || err.code == 11000 ? null : err);
@@ -136,8 +130,7 @@ exports.registerRoutes = function(app, dbFactory) {
 
 	controller.registerRoutes(app);
 
-	// TODO: Should be post	
-	app.get(controller.path + "/:id/poll", controller.poll);
+	app.post(controller.path + "/:id/poll", controller.poll);
 };
 
 /*
@@ -147,7 +140,7 @@ Coding Horror
   {"fetchFeed": { "url":"http://feeds.feedburner.com/codinghorror/" }},
   {"map":{"title":"title","body":"description","guid":"guid","link":"link","pubDate":"pubDate"}},
   {"excludeExisting":null},
-  {"selectImage":{"htmlField":"body","targetField":"imageUrl"}}
+  {"selectImage":{"htmlField":"body","targetField":"imageData"}}
 ]
 
 Hacker News
@@ -156,7 +149,7 @@ Hacker News
   { "map": { "title": "title", "guid": "comments", "link": "link" } },
   {"excludeExisting":null},
   { "fetchPages": { "urlField": "link", "targetField": "body" } },
-  { "selectImage": { "htmlField": "body", "targetField": "imageUrl" } }
+  { "selectImage": { "htmlField": "body", "targetField": "imageData" } }
 ]
 
 http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest

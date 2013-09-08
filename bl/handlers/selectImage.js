@@ -14,15 +14,15 @@ exports.handler = function(item, args, context, cb) {
 	function file_written(err) {
 		try {
 			if(err) return cb(err);
-			phantom.execute("select_best_image.js", fileName, image_extracted);
+			phantom.execute("select_best_image.js", fileName, "100", "100", image_extracted);
 		} catch(err) { return cb(err); }
 
-		function image_extracted(err, imageUrl) {
+		function image_extracted(err, imageData) {
 			try {
 				fs.unlink(fileName, function(err) { if(err) console.warn(err); });
 				if(err) return cb(err);
-
-				item[args.targetField] = imageUrl.replace(/[\r\n]/g, "");
+				
+				item[args.targetField] = imageData.length > 2 ? new Buffer(imageData, "base64") : null;
 				cb(null, item);
 			} catch(err) { return cb(err); }
 		}
