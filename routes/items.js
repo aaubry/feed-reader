@@ -26,7 +26,7 @@ exports.registerRoutes = function(app, dbFactory) {
 
 			function collection_opened(coll) {
 				var options = {
-					limit: 50,
+					limit: 150,
 					sort: [["pubDate","asc"]]
 				};
 

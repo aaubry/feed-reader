@@ -71,7 +71,8 @@ function page_loaded(status) {
 				|| node.tagName == "SCRIPT"
 				|| node.tagName == "IFRAME"
 				|| node.tagName == "OBJECT"
-				|| node.tagName == "EMBED";
+				|| node.tagName == "EMBED"
+				|| node.className.indexOf("sharedaddy") >= 0;
 
 			if(remove) {
 				node.parentNode.removeChild(node);

@@ -152,6 +152,15 @@ Hacker News
   { "selectImage": { "htmlField": "body", "targetField": "imageData" } }
 ]
 
+Saturday Morning Breakfast Cereals
+
+[
+  { "fetchFeed": { "url": "http://feeds.feedburner.com/smbc-comics/PvLb?format=xml" } },
+  { "map" : { "title": "title", "guid": "link", "link": "link", "body":"description" } },
+  {"excludeExisting":null},
+  {"selectImage":{"htmlField":"body","targetField":"imageData"}}
+]
+
 http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest
 
 */
