@@ -3,7 +3,7 @@
 	<ul class="feed-items">
 		<% for(var i = 0; i < items.length; ++i) { var item = items[i]; %>
 			<li>
-				<a href="/item/<%= item._id %>">
+				<a href="/<%= item._id %>">
 					<span><%= item.title %></span>
 					<% if(item.thumbUrl) { %>
 						<img src="<%= item.thumbUrl %>" />
@@ -50,7 +50,7 @@
 		var previousState = true;
 
 		function syncState() {
-			var newState = window.location.pathname == "/item";
+			var newState = window.location.pathname == "/";
 
 			if(!newState) {
 				$("#article-body")

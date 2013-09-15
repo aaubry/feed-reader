@@ -1,17 +1,7 @@
-var async = require("async");
 var TaskScheduler = require("./task").TaskScheduler;
 
-var handlers = {};
-
-["fetchFeed", "fetchPages", "map", "selectImage", "excludeExisting"].forEach(function(n) {
-	handlers[n] = require("./handlers/" + n).handler;
-	if(handlers[n] == null) {
-		throw "Badly defined pipeline handler '" + n + "'";
-	}
-});
-
-exports.execute = function(pipeline, context, cb) {
-	var initialStep = parsePipeline(pipeline);
+exports.execute = function(pipeline, context, handlers, cb) {
+	var initialStep = parsePipeline(pipeline, handlers);
 
 	var completedSteps = 0;
 	var estimatedSteps = initialStep.remaining;
@@ -56,7 +46,7 @@ exports.execute = function(pipeline, context, cb) {
 	}
 }
 
-function parsePipeline(pipeline) {
+function parsePipeline(pipeline, handlers) {
 	if(pipeline.length == 0) throw "Empty pipeline";
 
 	var steps = pipeline.map(function(s) {

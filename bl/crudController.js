@@ -13,6 +13,10 @@ exports.create = function(dbFactory, collection, title, sortField, createForm) {
 
 	var data = crud.create(dbFactory, collection);
 	result.data = data;
+	
+	result.parseId = function(id) {
+		return ObjectID.createFromHexString(id);
+	};
 
 	result.list = function(req, res) {
 		data.getPage({}, req.query.page, sortField, handleError(res, function(r) {
@@ -35,7 +39,7 @@ exports.create = function(dbFactory, collection, title, sortField, createForm) {
 	};
 
 	result.remove = function(req, res) {
-		var id = ObjectID.createFromHexString(req.params.id);
+		var id = result.parseId(req.params.id);
 		data.removeOne(id, handleError(res, function() {
 			res.redirect(path);
 		}));
@@ -45,7 +49,7 @@ exports.create = function(dbFactory, collection, title, sortField, createForm) {
 		createForm(handleError(res, function(form) {
 			form.handle(req, {
 				success: function(f) {
-					var id = ObjectID.createFromHexString(req.params.id);
+					var id = result.parseId(req.params.id);
 					data.updateOne(id, f.data, handleError(res, function() {
 						res.redirect(path);
 					}));
@@ -58,7 +62,7 @@ exports.create = function(dbFactory, collection, title, sortField, createForm) {
 					});
 				},
 				empty: function(f) {
-					var id = ObjectID.createFromHexString(req.params.id);
+					var id = result.parseId(req.params.id);
 					data.getOne(id, handleError(res, function(r) {
 						res.render("crud/edit", {
 							title: "Edit " + title,
