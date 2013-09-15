@@ -36,9 +36,15 @@ exports.registerRoutes = function(app, dbFactory) {
 					title: true,
 					thumbUrl: true
 				};
+				
+				coll.find({}, fields, options).sort({ pubDate: -1 }, closeOnError(db, handleAppError(res, items_sorted)));
 
-				var cursor = coll.find({}, fields, options);
-				cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
+				function items_sorted(cursor) {
+					cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
+				}
+
+				//var cursor = coll.find({}, fields, options);
+				//cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
 
 				function items_retrieved(items) {
 					res.render("home/list", {
