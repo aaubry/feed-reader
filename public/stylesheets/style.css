@@ -2,23 +2,23 @@ body {
 	padding: 50px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
 a {
 	color: #00b7ff;
 }
 
-label {
-	display: inline-block;	
-	width: 150px;
-}
-
 ul.feed-items {
+	margin: 0;
+	padding: 0;
+	font-size: 0;
+	text-align: center;
 }
 
 ul.feed-items li {
+	font-size: 14px;
     background-color: white;
     border: 1px solid black;
-    display: block;
-    float: left;
+    display: inline-block;
     height: 100px;
     margin: 1px;
     padding: 0;
@@ -60,19 +60,19 @@ ul.feed-items li img {
 	top: 0;
 }
 
-#article {
-	display: none;
+.article img {
+	height: auto;
+	max-width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+.article {
 	max-width: 600px;
 	margin: auto;
 }
 
-#article img {
-	height: auto;
-	max-width: 500px;
-}
-
-.loading {
-	margin: auto;
-	display: block;
+@media screen and (max-width: 480px) {
+	body { padding: 0; }
 }
 

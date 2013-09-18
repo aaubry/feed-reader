@@ -1,85 +1,12 @@
-<div id="list">
-	<h1><%= title %></h1>
-	<ul class="feed-items">
-		<% for(var i = 0; i < items.length; ++i) { var item = items[i]; %>
-			<li>
-				<a href="/<%= item._id %>">
-					<span><%= item.title %></span>
-					<% if(item.thumbUrl) { %>
-						<img src="<%= item.thumbUrl %>" />
-					<% } %>
-				</a>
-			</li>
-		<% } %>
-	</ul>
-</div>
-<div id="article">
-	<a id="previous-article" href="#">&lt;</a>
-	<a id="next-article" href="#">&gt;</a>
-	<div id="article-body"></div>
-</div>
-<script type="text/javascript">
-	$(function() {
-		$("#list a").click(function(evt) {
-			evt.preventDefault();
-
-			history.pushState({}, "", this.href);
-			syncState();
-		});
-
-		$(window).on("popstate", function() {
-			syncState();
-		});
-
-		$("#previous-article, #next-article").click(function(evt) {
-			evt.preventDefault();
-
-			var dir = this.id == "next-article" ? "next" : "prev";
-			var sibling = $("#list a[href='" + window.location.pathname + "']")
-				.closest("li")
-				[dir]("li")
-				.find("a");
-
-			var href = sibling.attr("href");
-			if(href != null) {
-				history.pushState({}, "", href);
-				syncState();
-			}
-		});
-
-		var previousState = true;
-
-		function syncState() {
-			var newState = window.location.pathname == "/";
-
-			if(!newState) {
-				$("#article-body")
-					.html("<img class='loading' src='/images/ajax-loader.gif' /" + ">")
-					.load(location.href);
-			}
-
-			if(previousState) {
-				if(newState) {
-					// Nothing to be done
-				} else {
-					$("#list").slideUp("normal", function() {
-						$("#article").fadeIn("normal");
-					});
-				}
-			} else {
-				if(newState) {
-					$("#article").fadeOut("normal", function() {
-						$("#list").slideDown("normal");
-					});
-				} else {
-					
-
-				}
-			}
-
-			previousState = newState;
-		}
-
-		syncState();
-	});
-</script>
+<ul class="feed-items">
+	<% for(var i = 0; i < items.length; ++i) { var item = items[i]; %>
+		<li>
+			<a href="/<%= item._id %>">
+				<span><%= item.title %></span>
+				<% if(item.thumbUrl) { %>
+					<img src="<%= item.thumbUrl %>" />
+				<% } %>
+			</a>
+		</li>
+	<% } %>
+</ul>
