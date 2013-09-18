@@ -62,6 +62,13 @@ ul.feed-items li img {
 
 #article {
 	display: none;
+	max-width: 600px;
+	margin: auto;
+}
+
+#article img {
+	height: auto;
+	max-width: 500px;
 }
 
 .loading {
