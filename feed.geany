@@ -23,10 +23,16 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=-1
+current_page=3
+FILE_NAME_0=0;Javascript;0;16;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fapp.js;0;4
+FILE_NAME_1=1698;Javascript;0;16;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Froutes%2Ffeeds.js;0;4
+FILE_NAME_2=278;HTML;0;16;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fviews%2Fhome%2Flist.ejs;0;4
+FILE_NAME_3=81;CSS;0;16;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fpublic%2Fstylesheets%2Fstyle.css;0;4
+FILE_NAME_4=23;HTML;0;16;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fviews%2Fhome%2Fview.ejs;0;4
+FILE_NAME_5=278;HTML;0;16;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fviews%2Flayout.ejs;0;4
 
 [VTE]
-last_dir=/home/aaubry
+last_dir=/home/aaubry/Work/feed
 
 [build-menu]
 EX_00_LB=_Execute

@@ -1,6 +1,8 @@
 body {
 	padding: 50px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	max-width: 600px;
+	margin: auto;
 }
 
 a {
@@ -65,11 +67,6 @@ ul.feed-items li img {
 	max-width: 100%;
 	padding: 0;
 	margin: 0;
-}
-
-.article {
-	max-width: 600px;
-	margin: auto;
 }
 
 @media screen and (max-width: 480px) {
