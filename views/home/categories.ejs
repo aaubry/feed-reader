@@ -1,0 +1,10 @@
+<ul class="feed-items">
+	<% for(var i = 0; i < items.length; ++i) { var item = items[i]; %>
+		<li>
+			<a href="/<%= item._id %>" title="<%= item.name %>">
+				<span><%= item.name %></span>
+				<img src="/images/folder.png" />
+			</a>
+		</li>
+	<% } %>
+</ul>

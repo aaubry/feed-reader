@@ -1,7 +1,14 @@
 <ul class="feed-items">
+	<li>
+		<a href="/" title="Back to category list">
+			<span>Categories</span>
+			<img src="/images/back.png" />
+		</a>
+	</li>
+
 	<% for(var i = 0; i < items.length; ++i) { var item = items[i]; %>
 		<li>
-			<a href="/<%= item._id %>" title="<%= item.title %>">
+			<a href="/i/<%= item._id %>" title="<%= item.title %>">
 				<span><%= item.title %></span>
 				<% if(item.thumbUrl) { %>
 					<img src="<%= item.thumbUrl %>" />
