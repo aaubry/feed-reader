@@ -52,6 +52,10 @@ ul.feed-items li span {
     z-index: 1;
 }
 
+ul.feed-items li span:last-child {
+	top: 15px;
+}
+
 ul.feed-items li img {
 	bottom: 0;
 	height: auto;
