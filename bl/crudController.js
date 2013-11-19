@@ -5,10 +5,10 @@ var mongodb = require("mongodb"),
 
 var handleError = require("../bl/error").handleAppError;
 
-exports.create = function(dbFactory, collection, title, sortField, createForm) {
+exports.create = function(dbFactory, collection, title, sortField, createForm, basePath) {
 	var result = {};
 
-	var path = "/" + collection.toLowerCase().substr(0, collection.length - 1);
+	var path = basePath || "/" + collection.toLowerCase().substr(0, collection.length - 1);
 	result.path = path;
 
 	var data = crud.create(dbFactory, collection);

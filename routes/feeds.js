@@ -45,11 +45,25 @@ var fields_object = function (opt) {
 };
 
 exports.registerRoutes = function(app, dbFactory) {
+        var categories = crud.create(dbFactory, "Categories");
+
 	var controller = crudController.create(dbFactory, "Feeds", "Feed", "name", function(cb) {
-		cb(null, forms.create({
+                categories.getAll({}, "name", function(err, res) {
+                    if(err) return cb(err);
+
+                    var choices = {};
+                    res.items.forEach(function(i) { choices[i._id] = i.name; });
+
+                    cb(null, forms.create({
 			name: fields.string({required: true}),
+                        category: fields.string({
+                                required: true,
+                                widget: widgets.select(),
+                                choices: choices
+                        }),
 			pipeline: fields_object({required: true, widget: widgets.textarea()})
-		}));
+		    }));
+		});
 	});
 
 	controller.registerRoutes(app);

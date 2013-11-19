@@ -13,7 +13,8 @@ var mongodb = require("mongodb"),
 
 exports.registerRoutes = function(app, dbFactory) {
 
-	app.get("/", list);
+	app.get("/", categories);
+	app.get("/cat/:id", list);
 	app.get("/:id", view);
 
 	function list(req, res) {
