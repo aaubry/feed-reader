@@ -24,16 +24,19 @@ function page_loaded(status) {
 
 			var bestImage = { src: "" };
 			var bestImageSize = 0;
+			var weight = 1;
 
 			for(var i = 0; i < imgs.length; ++i) {
 				var img = imgs[i];
 				
 				if(img.offsetWidth >= width * 0.8 && img.offsetHeight >= height * 0.8) {
-					var size = img.offsetWidth * img.offsetHeight;
+					var size = weight * img.offsetWidth * img.offsetHeight;
 					if(size > bestImageSize) {
 						bestImage = img;
 						bestImageSize = size;
 					}
+					
+					weight = weight * 0.9;
 				}
 			}
 			
