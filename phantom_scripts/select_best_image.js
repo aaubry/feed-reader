@@ -36,6 +36,10 @@ function page_loaded(status) {
 					}
 				}
 			}
+			
+			if(bestImageSize <= 0) {
+				return "";
+			}
 
 			var canvas = document.createElement("canvas");
 			canvas.width = width;

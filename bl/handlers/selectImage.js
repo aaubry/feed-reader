@@ -22,7 +22,7 @@ exports.handler = function(item, args, context, cb) {
 				fs.unlink(fileName, function(err) { if(err) console.warn(err); });
 				if(err) return cb(err);
 				
-				item[args.targetField] = imageData.length > 2 ? new Buffer(imageData, "base64") : null;
+				item[args.targetField] = imageData.length > 100 ? new Buffer(imageData, "base64") : null;
 				cb(null, item);
 			} catch(err) { return cb(err); }
 		}
