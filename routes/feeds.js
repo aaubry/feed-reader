@@ -99,6 +99,12 @@ Saturday Morning Breakfast Cereals
 
 http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest
 
+Lewis Trondheim Projets
+
+[
+  { "fetchHtml": { "url": "http://lewistrondheim.com/projets" } }
+]
+
 */
 
 
