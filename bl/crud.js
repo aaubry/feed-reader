@@ -158,6 +158,22 @@ exports.create = function(dbFactory, collection) {
 		});
 	};
 
+	var insertOrUpdate = function(item, cb /* { } */) {
+		var db = dbFactory();
+		db.open(function(err, conn) {
+			if(err) { db.close(); return cb(err, null); }
+
+			conn.collection(collection, function(err, coll) {
+				if(err) { db.close(); return cb(err, null); }
+
+				coll.update({ _id: item._id }, item, { safe: true, upsert: true }, function(err) {
+					db.close();
+					cb(err, null);
+				});
+			});
+		});
+	};
+
 	return {
 		getPage: getPage,
 		getAll: getAll,
@@ -165,6 +181,7 @@ exports.create = function(dbFactory, collection) {
 		updateOne: updateOne,
 		removeOne: removeOne,
 		insert: insert,
+		insertOrUpdate: insertOrUpdate,
 		exists: exists
 	};
 };

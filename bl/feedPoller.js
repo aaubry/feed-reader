@@ -12,7 +12,9 @@ var fs = require("fs");
 
 var handlers = {};
 
-["fetchFeed", "fetchPages", "map", "selectImage", "excludeExisting", "fetchHtml"].forEach(function(n) {
+["fetchFeed", "fetchPages", "map",
+ "selectImage", "excludeExisting", "fetchHtml",
+ "xpath"].forEach(function(n) {
 	handlers[n] = require("./handlers/" + n).handler;
 	if(handlers[n] == null) {
 		throw "Badly defined pipeline handler '" + n + "'";
@@ -81,6 +83,7 @@ function poll_feed(dbFactory, feed, testMode, cb) {
 				guid: item.guid,
 				link: item.link,
 				pubDate: pubDate,
+				thumbUrl: item.thumbUrl,
 				imageData: item.imageData
 			};
 			cb(null, feedItem);
@@ -108,6 +111,7 @@ function poll_feed(dbFactory, feed, testMode, cb) {
 
 	function store_item(item, data, context, cb) {
 		try {
+			//feedItems.insertOrUpdate(item, cb);
 			feedItems.insert(item, item_stored);
 		} catch(err) { cb(err); }
 

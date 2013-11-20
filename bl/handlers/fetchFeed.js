@@ -45,7 +45,7 @@ extractors["text/xml"] = function(body, cb) {
 	if(doc.get("/rss")) {
 		extract_rss(doc, cb);
 	} else if(doc.get("/feed", ns)) {
-                extract_atom(doc, cb);
+        extract_atom(doc, cb);
 	} else {
 		cb("Could not parse xml");
 	}

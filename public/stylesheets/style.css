@@ -31,6 +31,7 @@ ul.feed-items li {
 ul.feed-items li a {
 	display: block;
 	position: absolute;
+	overflow: hidden;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -59,6 +60,7 @@ ul.feed-items li span:last-child {
 ul.feed-items li img {
 	bottom: 0;
 	height: auto;
+	max-height: 100px;
 	left: 0;
 	margin: auto;
 	position: absolute;

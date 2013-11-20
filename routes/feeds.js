@@ -102,7 +102,22 @@ http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest
 Lewis Trondheim Projets
 
 [
-  { "fetchHtml": { "url": "http://lewistrondheim.com/projets" } }
+  { "fetchHtml": { "url": "http://lewistrondheim.com/projets" } },
+  { "xpath": { "htmlField": "html", "namespaces": { "h": "http://www.w3.org/1999/xhtml" },
+     "itemsQuery": "//h:center//h:table//h:tr[position() > 1]",
+     "itemBuilder": {
+		 "title": "h:td[1]",
+		 "coAuthor": "h:td[2]",
+		 "pages": "h:td[3]",
+		 "pubDate": "h:td[4]",
+		 "editor": "h:td[5]"
+	} } },
+	{ "map": {
+		"title": "title",
+		"guid": "${title}-{pages}-{pubDate}",
+		"link": "#http://lewistrondheim.com/projets",
+		"thumbUrl": "#http://lewistrondheim.com/images/siteproj.jpg",
+		"body": "$<ul><li>{title}</li><li>{pages}</li><li>{pubDate}</li></ul>" } }
 ]
 
 */
