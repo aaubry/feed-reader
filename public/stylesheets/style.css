@@ -1,7 +1,9 @@
+* { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
 body {
 	padding: 50px;
 	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-	max-width: 600px;
+	max-width: 610px;
 	margin: auto;
 }
 
@@ -73,6 +75,38 @@ ul.feed-items li img {
 	max-width: 100%;
 	padding: 0;
 	margin: 0;
+}
+
+form {
+	display: table;
+}
+
+form > .field {
+	display: table-row;
+}
+
+form > .field > label {
+	display: table-cell;
+	vertical-align: top;
+	padding: 0 1em 1em 0;
+}
+
+form > .field > input,
+form > .field > select,
+form > .field > textarea {
+	display: table-cell;
+	width: 430px;
+	margin-bottom: 1em;
+}
+
+form > .field > textarea {
+	height: 300px;
+}
+
+form > .buttons {
+    caption-side: bottom;
+    display: table-caption;
+    text-align: right;
 }
 
 @media screen and (max-width: 480px) {

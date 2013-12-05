@@ -1,9 +1,11 @@
 <h1><%= title %></h1>
 <form method="post">
 	<%- form.toHTML() %>
-	<input type="submit" value="Save" />
-	<% if(id) { %>
-		<a href="<%= id %>/delete">Delete</a>
-	<% } %>
-</form>
 
+	<div class="buttons">
+		<input type="submit" value="Save" />
+		<% if(id) { %>
+			<a href="<%= id %>/delete">Delete</a>
+		<% } %>
+	</div>
+</form>
