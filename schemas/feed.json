@@ -1,0 +1,237 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Feed",
+    "description": "A feed",
+    
+    "type": "object",
+    "properties": {
+        "_id": {
+            "description": "The unique identifier for a feed",
+            "type": "string"
+        },
+        "name": {
+            "description": "The name of the feed",
+            "type": "string"
+        },
+        "category": { "$ref": "category.json" },
+        "pipeline": {
+			"description": "The steps required to process this feed",
+            "items": {
+				"anyOf": [
+					{ "$ref": "#/definitions/excludeExisting" },
+					{ "$ref": "#/definitions/fetchFeed" },
+					{ "$ref": "#/definitions/fetchHtml" },
+					{ "$ref": "#/definitions/fetchPages" },
+					{ "$ref": "#/definitions/filter" },
+					{ "$ref": "#/definitions/map" },
+					{ "$ref": "#/definitions/selectImage" },
+					{ "$ref": "#/definitions/xpaths" }
+				]
+			}
+		}
+    },
+    "additionalProperties": false,
+    "required": ["_id", "name", "category", "pipeline"],
+    
+    "definitions": {
+		"excludeExisting": {
+			"title": "Exclude existing",
+			"description": "Exclude already imported items",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["excludeExisting"]
+				}
+			},
+			"additionalProperties": false,
+			"required": ["$type"]
+		},
+		"fetchFeed": {
+			"title": "Fetch feed",
+			"description": "Fetch an RSS or ATOM feed",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["fetchFeed"]
+				},
+				"url": {
+					"type": "string",
+					"default": "http://"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["$type", "url"]
+		},
+		"fetchHtml": {
+			"title": "Fetch HTML",
+			"description": "Fetch an HTML page",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["fetchHtml"]
+				},
+				"url": {
+					"type": "string",
+					"default": "http://"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["$type", "url"]
+		},
+		"fetchPages": {
+			"title": "Fetch pages",
+			"description": "Fetch the HTML pages referenced by a field and store the result into another field",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["fetchPages"]
+				},
+				"urlField": {
+					"type": "string",
+					"default": "link"
+				},
+				"targetField": {
+					"type": "string",
+					"default": "body"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["$type", "urlField", "targetField"]
+		},
+		"filter": {
+			"title": "Fiter",
+			"description": "Exclude items that do not match a predicate",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["filter"]
+				},
+				"predicate": {
+					"type": "string",
+					"default": "item.category == 'articles'"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["$type", "predicate"]
+		},
+		"map": {
+			"title": "Map",
+			"description": "Transform the items",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["map"]
+				},
+				"mappings": {
+					"type": "array",
+					"items": {
+						"oneOf": [
+							{
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"source": {
+										"type": "string"
+									}
+								},
+								"additionalProperties": false,
+								"required": ["name", "value"]
+							},
+							{
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"constant": {
+										"type": "string"
+									}
+								},
+								"additionalProperties": false,
+								"required": ["name", "constant"]
+							},
+							{
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"template": {
+										"type": "string"
+									}
+								},
+								"additionalProperties": false,
+								"required": ["name", "template"]
+							}
+						],
+						"default": [
+							{ "name": "field1", "source": "original1" },
+							{ "name": "constantField", "constant": "constant value" },
+							{ "name": "templatedField", "template": "$<ul><li>{first}</li><li>{second}</li></ul>" }
+						]
+					},
+					"minItems": 1
+				}
+			},
+			"required": ["$type", "mappings"],
+			"additionalProperties": false
+		},
+		"selectImage": {
+			"title": "Select image",
+			"description": "Select the best image from an HTML field",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["fetchPages"]
+				},
+				"htmlField": {
+					"type": "string",
+					"default": "body"
+				},
+				"targetField": {
+					"type": "string",
+					"default": "image"
+				}
+			},
+			"additionalProperties": false,
+			"required": ["$type", "htmlField", "targetField"]
+		},
+		"xpath": {
+			"title": "XPath",
+			"description": "Transform XML using XPath",
+			"type": "object",
+			"properties": {
+				"$type": {
+					"type": "string",
+					"enum": ["fetchPages"]
+				},
+				"htmlField": {
+					"type": "string",
+					"default": "body"
+				},
+				TODO: namespaces
+				"itemsQuery": {
+					"type": "string",
+					"default": "/h:html/h:body/h:ul/h:li"
+				},
+				TODO: itemBuilder
+			},
+			"additionalProperties": false,
+			"required": ["$type", "htmlField", "itemsQuery"]
+			
+// args = { htmlField: "html",
+//          namespaces: { "h": "http://www.w3.org/1999/xhtml" },
+//          itemsQuery: "/html/body/ul/li",
+//          itemBuilder: { value: "text()", name: "@id", ... } }			
+		}
+	}
+}
