@@ -17,6 +17,9 @@ var crypto = require("crypto");
 var async = require("async");
 var fs = require("fs");
 
+var feedPoller = require("../bl/feedPoller");
+var handleError = require("../bl/error").handleAppError;
+
 var fields_object = function (opt) {
     if (!opt) { opt = {}; }
     var f = fields.string(opt);
@@ -66,7 +69,42 @@ exports.registerRoutes = function(app, dbFactory) {
 		});
 	});
 
-	controller.registerRoutes(app);
+	controller.test = function(req, res) {
+		
+		res.render("layout_top", { title: "Test Feed", layout: false }, handleError(res, top_rendered));
+		
+		function top_rendered(html) {
+			res.write(html);
+			res.write("<ul class='feed-items'>");
+			feedPoller.poll(dbFactory, req.params.id, collect_item, handleError(res, poll_complete));
+		}
+		
+		function collect_item(item, data, context, cb) {
+			res.render("home/item", { item: item, layout: false }, handleError(res, item_rendered));
+			
+			function item_rendered(html) {
+				res.write(html);
+				cb(null);
+			}
+		}
+		
+		function poll_complete() {
+			res.render("layout_bottom", { layout: false }, handleError(res, bottom_rendered));
+		}
+		
+		function bottom_rendered(html) {
+			res.write("</ul>");
+			res.write(html);
+			res.end();
+		}
+	};
+	
+	controller.registerRoutes(app, {
+		"Test": {
+			path: ":id/test",
+			action: controller.test
+		}
+	});
 };
 
 /*

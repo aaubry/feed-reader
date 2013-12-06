@@ -85,8 +85,14 @@ form > .field {
 	display: table-row;
 }
 
-form > .field > label {
+form > .field > span {
 	display: table-cell;
+}
+
+form > .field .error_msg {
+}
+
+form > .field label {
 	vertical-align: top;
 	padding: 0 1em 1em 0;
 }

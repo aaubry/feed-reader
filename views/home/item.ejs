@@ -1,0 +1,8 @@
+<li>
+	<a href="/i/<%= item._id %>" title="<%= item.title %>">
+		<span><%= item.title %></span>
+		<% if(item.thumbUrl) { %>
+			<img src="<%= item.thumbUrl %>" />
+		<% } %>
+	</a>
+</li>

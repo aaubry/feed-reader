@@ -14,7 +14,7 @@ var handlers = {};
 
 ["fetchFeed", "fetchPages", "map",
  "selectImage", "excludeExisting", "fetchHtml",
- "xpath"].forEach(function(n) {
+ "xpath", "filter"].forEach(function(n) {
 	handlers[n] = require("./handlers/" + n).handler;
 	if(handlers[n] == null) {
 		throw "Badly defined pipeline handler '" + n + "'";
@@ -40,7 +40,7 @@ exports.pollAll = function(dbFactory, cb) {
 	}
 }
 
-exports.poll = function(dbFactory, feedId, testMode, cb) {
+exports.poll = function(dbFactory, feedId, processItem, cb) {
 	var feeds = crud.create(dbFactory, "Feeds");
 
 	if(typeof(feedId) == "string") feedId = ObjectID.createFromHexString(feedId);
@@ -50,15 +50,15 @@ exports.poll = function(dbFactory, feedId, testMode, cb) {
 		if(err) return cb(err);
 		if(feed.item == null) return cb("Not found");
 		
-		poll_feed(dbFactory, feed.item, testMode, cb);
+		poll_feed(dbFactory, feed.item, processItem, cb);
 	}
 }
 
-function poll_feed(dbFactory, feed, testMode, cb) {
+function poll_feed(dbFactory, feed, processItem, cb) {
 	var feedItems = crud.create(dbFactory, "Items");
 
-	var finalSteps = testMode
-		? [print_item]
+	var finalSteps = processItem
+		? [processItem]
 		: [format_item, save_thumbnail, store_item];
 	
 	pipeline.execute(
@@ -118,10 +118,5 @@ function poll_feed(dbFactory, feed, testMode, cb) {
 		function item_stored(err) {
 			cb(err == null || err.code == 11000 ? null : err);
 		}
-	}
-	
-	function print_item(item, data, context, cb) {
-		console.log(item);
-		cb(null);
 	}
 }

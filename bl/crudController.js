@@ -51,14 +51,15 @@ exports.create = function(dbFactory, collection, title, sortField, createForm, b
 				success: function(f) {
 					var id = result.parseId(req.params.id);
 					data.updateOne(id, f.data, handleError(res, function() {
-						res.redirect(path);
+						res.redirect(path + "/" + req.params.id);
 					}));
 				},
 				error: function(f) {
 					res.render("crud/edit", {
 						title: "Edit " + title,
 						id: req.params.id,
-						form: f
+						form: f,
+						actions: result.editActions
 					});
 				},
 				empty: function(f) {
@@ -67,7 +68,8 @@ exports.create = function(dbFactory, collection, title, sortField, createForm, b
 						res.render("crud/edit", {
 							title: "Edit " + title,
 							id: req.params.id,
-							form: f.bind(r.item)
+							form: f.bind(r.item),
+							actions: result.editActions
 						});
 					}));
 				}
@@ -81,7 +83,8 @@ exports.create = function(dbFactory, collection, title, sortField, createForm, b
 				res.render("crud/edit", {
 					title: "Create " + title,
 					id: null,
-					form: f
+					form: f,
+					actions: {}
 				});
 			};
 
@@ -97,7 +100,8 @@ exports.create = function(dbFactory, collection, title, sortField, createForm, b
 		}));
 	};
 
-	result.registerRoutes = function(app) {
+	result.editActions = {};
+	result.registerRoutes = function(app, editActions) {
 		app.get(path, this.list);
 		app.get(path + "/create", this.create);
 		app.post(path + "/create", this.create);
@@ -105,6 +109,14 @@ exports.create = function(dbFactory, collection, title, sortField, createForm, b
 		app.post(path + "/:id", this.edit);
 		app.get(path + "/:id/delete", this.confirmRemove);
 		app.post(path + "/:id/delete", this.remove);
+		
+		if(editActions) {
+			result.editActions = editActions;
+			for(var name in editActions) {
+				var cgf = editActions[name];
+				app.get(path + "/" + cgf.path, cgf.action);
+			}
+		}
 	};
 
 	return result;

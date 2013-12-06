@@ -1,4 +1,4 @@
-var request = require("request");
+var http = require("../http");
 var libxmljs = require("libxmljs");
 
 var extractors = {};
@@ -7,13 +7,12 @@ var extractors = {};
 exports.handler = function(item, args, context, cb) {
 
 	try {
-		request(args.url, response_available);
+		http.get(args.url, response_available);
 	} catch(err) { return cb(err); }
 
 	function response_available(err, response, body) {
 		try {
 			if(err) return cb(err, null);
-			if(response.statusCode != 200) return cb("HTTP status code " + response.statusCode + " received.", null);
 
 			var mediaType = "?";
 			var contentType = response.headers["content-type"];

@@ -17,11 +17,17 @@ function execute() {
 	console.log("");
 	
 	if(program.feed) {
-		feedPoller.poll(dbFactory, program.feed, program.test, poll_complete);
+		feedPoller.poll(dbFactory, program.feed, program.test ? print_item : null, poll_complete);
 	} else {
 		feedPoller.pollAll(dbFactory, poll_complete);
 	}
 }
+
+function print_item(item, data, context, cb) {
+	console.log(item);
+	cb(null);
+}
+
 
 function poll_complete(err) {
 	if(err) console.log(err);
