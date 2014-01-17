@@ -10,17 +10,6 @@ var crypto = require("crypto");
 var async = require("async");
 var fs = require("fs");
 
-var handlers = {};
-
-["fetchFeed", "fetchPages", "map",
- "selectImage", "excludeExisting", "fetchHtml",
- "xpath", "filter"].forEach(function(n) {
-	handlers[n] = require("./handlers/" + n).handler;
-	if(handlers[n] == null) {
-		throw "Badly defined pipeline handler '" + n + "'";
-	}
-});
-
 exports.pollAll = function(dbFactory, cb) {
 
 	var scheduler = new TaskScheduler({

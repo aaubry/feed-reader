@@ -3,6 +3,8 @@ var libxmljs = require("libxmljs");
 
 var extractors = {};
 
+exports.name = "Fetch RSS/ATOM feed";
+
 // args = { url: "http://example.com" }
 exports.handler = function(item, args, context, cb) {
 
@@ -27,8 +29,6 @@ exports.handler = function(item, args, context, cb) {
 		} catch(err) { return cb(err); }
 	}
 };
-
-exports.handler.weight = 3;
 
 extractors["application/rss+xml"] = function(body, cb) {
 	extract_rss(libxmljs.parseXml(body), cb);

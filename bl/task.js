@@ -1,3 +1,4 @@
+var colors = require("colors");
 
 // options: { maxConcurrency = 5, mode = "fifo|lifo" }
 function TaskScheduler(options, onQueueEmpty) {
@@ -51,9 +52,9 @@ TaskScheduler.prototype.runNextTask = function() {
 	nextTask.args.push(function(err) {
 		if(err) {
 			if(err.stack) {
-				console.log("Task error: %s", err.stack);
+				console.log("Task error: %s".red, err.stack);
 			} else {
-				console.log("Task error: ", err);
+				console.log("Task error: ".red, err);
 			}
 		}
 
@@ -68,7 +69,7 @@ TaskScheduler.prototype.runNextTask = function() {
 
 TaskScheduler.prototype.displayStatus = function() {
 	console.log(
-		"Running tasks: [ %s ] (%d queued: [ %s ])",
+		"Running tasks: [ %s ] (%d queued: [ %s ])".magenta,
 		this.running.reduce(function(p, c) { return p.length > 0 ? p + ", " + c.name : c.name; }, ""),
 		this.queue.length,
 		this.queue.slice(0, 5).reduce(function(p, c) { return p.length > 0 ? p + ", " + c.name : c.name; }, "")
