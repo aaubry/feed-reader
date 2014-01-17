@@ -26,7 +26,7 @@ exports.get = function(url, cb) {
 						cb(err, response, decoded && decoded.toString());
 					})
 				} else {
-					cb(err, response, buffer.toString());
+					cb(null, response, buffer.toString());
 				}
 			 });
 		});
