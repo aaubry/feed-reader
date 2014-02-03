@@ -32,9 +32,6 @@ if ("development" == app.get("env")) {
 }
 
 //app.get("/", routes.index);
-require("./routes/categories").registerRoutes(app, dbFactory);
-require("./routes/feeds").registerRoutes(app, dbFactory);
-require("./routes/items").registerRoutes(app, dbFactory);
 require("./routes/home").registerRoutes(app, dbFactory);
 
 http.createServer(app).listen(app.get("port"), function(){
