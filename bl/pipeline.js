@@ -10,7 +10,7 @@ exports.execute = function(initialStep, context, cb) {
 		mode: "lifo"
 	}, cb);
 
-	scheduler.schedule(execute_step, initialStep.weight, initialStep.name, initialStep, null);
+	scheduler.schedule(execute_step, initialStep.weight, initialStep.name, [initialStep, null]);
 
 	function execute_step(step, item, cb) {
 		step.handler(item, step.args, context, step_complete);
@@ -36,7 +36,7 @@ exports.execute = function(initialStep, context, cb) {
 
 			if(step.next && err == null) {
 				items.forEach(function(i) {	
-					scheduler.schedule(execute_step, step.next.weight, step.next.name, step.next, i);
+					scheduler.schedule(execute_step, step.next.weight, step.next.name, [step.next, i]);
 				});
 			}
 

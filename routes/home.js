@@ -10,6 +10,8 @@ var error = require("../bl/error"),
 
 var mongodb = require("mongodb"),
 	ObjectID = mongodb.ObjectID;
+	
+var config = require("../config/config").config;
 
 exports.registerRoutes = function(app, dbFactory) {
 
@@ -18,24 +20,14 @@ exports.registerRoutes = function(app, dbFactory) {
 	app.get("/i/:id", view);
 
 	function categories(req, res) {
-		var db = dbFactory();
-		db.open(closeOnError(db, handleAppError(res, db_opened)));
-
-		function db_opened(conn) {
-			conn.collection("Categories", closeOnError(db, handleAppError(res, collection_opened)));
-
-			function collection_opened(coll) {
-				var cursor = coll.find({});
-				cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
-
-				function items_retrieved(items) {
-					res.render("home/categories", {
-						title: "Categories",
-						items: items
-					});
-				}
-			}
-		}
+		var categories = config.categories.map(function(category, i) {
+			return { id: i, name: category.name };
+		});
+		
+		res.render("home/categories", {
+			title: "Categories",
+			items: categories
+		});
 	}
 
 	function list(req, res) {
@@ -44,47 +36,35 @@ exports.registerRoutes = function(app, dbFactory) {
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
 		function db_opened(conn) {
-			conn.collection("Feeds", closeOnError(db, handleAppError(res, feeds_collection_opened)));
+			conn.collection("Items", closeOnError(db, handleAppError(res, items_collection_opened)));
 
-			function feeds_collection_opened(coll) {
-				var fields = {
-					_id: true,
-					name: true,
+			function items_collection_opened(coll) {
+				var options = {
+					limit: 150,
+					sort: [["pubDate","asc"]]
 				};
 
-				var cursor = coll.find({ category: req.params.id }, fields);
-				cursor.toArray(closeOnError(db, cursor, handleAppError(res, feeds_retrieved)));
+				var fields = {
+					_id: true,
+					feedId: true,
+					title: true,
+					thumbUrl: true
+				};
+				
+				var categoryId = parseInt(req.params.id);
+				var category = config.categories[categoryId];
+				var feedIds = category.feeds.map(function(feed) { return feed.id; });
+				coll.find({ feedId: { $in: feedIds } }, fields, options).sort({ pubDate: -1 }, closeOnError(db, handleAppError(res, items_sorted)));
 
-				function feeds_retrieved(feeds) {
-					conn.collection("Items", closeOnError(db, handleAppError(res, items_collection_opened)));
+				function items_sorted(cursor) {
+					cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
+				}
 
-					function items_collection_opened(coll) {
-						var options = {
-							limit: 150,
-							sort: [["pubDate","asc"]]
-						};
-
-						var fields = {
-							_id: true,
-							feedId: true,
-							title: true,
-							thumbUrl: true
-						};
-						
-						var feedIds = feeds.map(function(i) { return i._id; });
-						coll.find({ feedId: { $in: feedIds } }, fields, options).sort({ pubDate: -1 }, closeOnError(db, handleAppError(res, items_sorted)));
-
-						function items_sorted(cursor) {
-							cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
-						}
-
-						function items_retrieved(items) {
-							res.render("home/list", {
-								title: "Feed Items",
-								items: items
-							});
-						}
-					}
+				function items_retrieved(items) {
+					res.render("home/list", {
+						title: "Feed Items",
+						items: items
+					});
 				}
 			}
 		}

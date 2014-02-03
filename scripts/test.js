@@ -1,15 +1,18 @@
 var PipelineBuilder = require("../bl/PipelineBuilder").PipelineBuilder;
-var smbc = require("../config/smbc");
 var pipeline = require("../bl/pipeline");
+var dbFactory = require("../bl/dbFactory").dbFactory;
+var crud = require("../bl/crud");
 
 var builder = new PipelineBuilder();
-smbc.configure(builder);
+require("../config/lewis-trondheim-projets").configure(builder);
 
 builder.dump();
 
+var feedItems = crud.create(dbFactory, "Items");
+
 pipeline.execute(
 	builder.build(),
-	{},
+	{ db: feedItems },
 	function() {
 		console.log("Done");
 	}

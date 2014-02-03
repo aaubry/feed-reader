@@ -22,8 +22,7 @@ function TaskScheduler(options, onQueueEmpty) {
 	this.maxConcurrency = options.maxConcurrency || 5;
 }
 
-TaskScheduler.prototype.schedule = function(task, weight, name /* task(arg1, arg2, cb), arg1, arg2 */) {
-	var args = Array.prototype.slice.call(arguments, 3);
+TaskScheduler.prototype.schedule = function(task, weight, name, args) {
 	this.queue.push({ task: task, args: args, weight: weight, name: name });
 	this.runNextTask();
 }

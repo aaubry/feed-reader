@@ -1,8 +1,11 @@
+exports.id = "4";
+exports.name = "Saturday Morning Breakfast Cereals";
+
 exports.configure = function(builder) {
 	
 	return builder
 		.fetchFeed("http://feeds.feedburner.com/smbc-comics/PvLb?format=xml")
-		/*.map(function(i) {
+		.map(function(i) {
 			return {
 				title: i.title,
 				guid: i.link,
@@ -11,5 +14,5 @@ exports.configure = function(builder) {
 			};
 		})
 		.excludeExisting()
-		.selectImage("body", "imageData")*/;
-}
+		.selectImage();
+};

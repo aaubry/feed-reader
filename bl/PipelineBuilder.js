@@ -1,56 +1,37 @@
-var handlers = {};
-
-["fetchFeed", "fetchPages", "map",
- "selectImage", "excludeExisting", "fetchHtml",
- "xpath", "filter"].forEach(function(n) {
-	handlers[n] = require("./handlers/" + n);
-	if(handlers[n] == null) {
-		throw "Badly defined pipeline handler '" + n + "'";
-	}
-});
+var fs = require("fs");
 
 exports.PipelineBuilder = function PipelineBuilder() {
-	var steps = [];
-	
-	this.fetchFeed = function(url) {
-		steps.push({
-			handler: handlers.fetchFeed,
-			args: { url: url },
-			weight: 3
-		});
-	};
-	
-	this.dump = function(handler, name) {
-		steps.push({
-			handler: {
-				handler: function (item, data, context, cb) {
-					console.log(item);
-					cb(null);
-				},
-				name: "Dump"
-			},
-		})
-	};
-	
+	this._steps = [];
+
 	this.custom = function(handler, name) {
-		steps.push({
+		_steps.push({
 			handler: {
 				handler: handler,
 				name: name || "Custom"
 			},
 		})
+		return this;
 	};
 	
 	this.build = function() {
+		var steps = this._steps;
 		for(var i = 0; i < steps.length; ++i) {
 			if(i > 0) steps[i - 1].next = steps[i];
 			steps[i].remaining = steps.length - i;
 			steps[i].weight = steps[i].weight || 1;
-			
-			steps[i].name = steps[i].handler.name;
-			steps[i].handler = steps[i].handler.handler;
 		}
 		
 		return steps[0];
 	};
 }
+
+exports.PipelineBuilder.prototype = {};
+
+fs.readdirSync("./bl/handlers").forEach(function(handlerFileName) {
+	var name = /^(.*)\.js$/.exec(handlerFileName)[1];
+	var handler = require("./handlers/" + name);
+	exports.PipelineBuilder.prototype[name] = function() {
+		this._steps.push(handler.builder.apply(null, arguments));
+		return this;
+	};
+});
