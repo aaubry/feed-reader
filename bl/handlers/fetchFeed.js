@@ -3,32 +3,34 @@ var libxmljs = require("libxmljs");
 
 var extractors = {};
 
-// args = { url: "http://example.com" }
-exports.handler = function(item, args, context, cb) {
+exports.builder = function(url) {
+	return {
+		name: "Fetch RSS/ATOM feed",
+		weight: 3,
+		handler: function(item, args, context, cb) {
+			try {
+				http.get(url, response_available);
+			} catch(err) { return cb(err); }
 
-	try {
-		http.get(args.url, response_available);
-	} catch(err) { return cb(err); }
+			function response_available(err, response, body) {
+				try {
+					if(err) return cb(err, null);
 
-	function response_available(err, response, body) {
-		try {
-			if(err) return cb(err, null);
+					var mediaType = "?";
+					var contentType = response.headers["content-type"];
+					if(contentType) {
+						mediaType = contentType.split(";")[0];
+					}
 
-			var mediaType = "?";
-			var contentType = response.headers["content-type"];
-			if(contentType) {
-				mediaType = contentType.split(";")[0];
+					var extractor = extractors[mediaType];
+					if(!extractor) return cb("No handler for media type: " + mediaType, null);
+
+					extractor(body, cb);
+				} catch(err) { return cb(err); }
 			}
-
-			var extractor = extractors[mediaType];
-			if(!extractor) return cb("No handler for media type: " + mediaType, null);
-
-			extractor(body, cb);
-		} catch(err) { return cb(err); }
-	}
+		}
+	};
 };
-
-exports.handler.weight = 3;
 
 extractors["application/rss+xml"] = function(body, cb) {
 	extract_rss(libxmljs.parseXml(body), cb);

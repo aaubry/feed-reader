@@ -1,12 +1,12 @@
 
 exports.builder = function(projection) {
 	return {
-		name: "Transform items",
+		name: "Dump",
 		weight: 1,
 		handler: function(item, args, context, cb) {
 			try {
-				var mapped = projection(item);
-				cb(null, mapped);
+				console.log(item);
+				cb(null, item);
 			} catch(err) { return cb(err); }
 		}
 	};
