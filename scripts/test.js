@@ -4,7 +4,7 @@ var dbFactory = require("../bl/dbFactory").dbFactory;
 var crud = require("../bl/crud");
 
 var builder = new PipelineBuilder();
-require("../config/lewis-trondheim-projets").configure(builder);
+require("../config/xkcd").configure(builder);
 
 builder.dump();
 

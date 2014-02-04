@@ -25,5 +25,6 @@ exports.configure = function(builder) {
 				body: text.format("<ul><li>{title}</li><li>{pages}</li><li>{pubDate}</li></ul>", i),
 				thumbUrl: "http://lewistrondheim.com/images/siteproj.jpg"
 			};
-		});
+		})
+		.excludeExisting();
 };

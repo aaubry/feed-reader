@@ -2,4 +2,13 @@
 	<h1><%= title %></h1>
 	<h2><a href="<%= item.link %>"><%= item.pubDate %></a></h2>
 	<%- item.body %>
+	<% if(item.links != null && item.links.length != 0) { %>
+		<ul class="links">
+			<% item.links.forEach(function(i) { %>
+				<li>
+					<a href="<%- i.link %>"><%- i.title %></a>
+				</li>
+			<% }); %>
+		</ul>
+	<% } %>
 </div>

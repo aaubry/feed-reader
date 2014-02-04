@@ -13,7 +13,8 @@ exports.config = {
 			name: "BD",
 			feeds: [
 				require("./smbc"),
-				require("./lewis-trondheim-projets")
+				require("./lewis-trondheim-projets"),
+				require("./xkcd")
 			]
 		},
 		{

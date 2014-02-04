@@ -5,8 +5,8 @@ exports.builder = function() {
 		weight: 1,
 		handler: function(item, args, context, cb) {
 			try {
-				//context.db.insertOrUpdate(item, cb);
-				context.db.insert(item, item_stored);
+				context.db.insertOrUpdate(item, cb);
+				//context.db.insert(item, item_stored);
 			} catch(err) { cb(err); }
 
 			function item_stored(err) {

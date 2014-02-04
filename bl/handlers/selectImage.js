@@ -5,7 +5,7 @@ var fs = require("fs");
 
 exports.builder = function(htmlField, targetField) {
 	htmlField = htmlField || "body";
-	targetField = targetField || "image";
+	targetField = targetField || "imageData";
 
 	return {
 		name: "Select image from body",

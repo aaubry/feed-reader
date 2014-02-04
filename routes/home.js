@@ -54,6 +54,9 @@ exports.registerRoutes = function(app, dbFactory) {
 				var categoryId = parseInt(req.params.id);
 				var category = config.categories[categoryId];
 				var feedIds = category.feeds.map(function(feed) { return feed.id; });
+				
+				console.log(feedIds);
+				
 				coll.find({ feedId: { $in: feedIds } }, fields, options).sort({ pubDate: -1 }, closeOnError(db, handleAppError(res, items_sorted)));
 
 				function items_sorted(cursor) {
@@ -86,6 +89,7 @@ exports.registerRoutes = function(app, dbFactory) {
 					title: true,
 					body: true,
 					link: true,
+					links: true,
 					pubDate: true
 				};
 

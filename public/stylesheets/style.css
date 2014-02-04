@@ -77,6 +77,16 @@ ul.feed-items li img {
 	margin: 0;
 }
 
+ul.links {
+	border-top: 1px solid #000000;
+    margin-top: 20px;
+    padding: 15px 0 0;
+}
+
+ul.links li {
+	list-style: none;
+}
+
 form {
 	display: table;
 }
@@ -116,6 +126,6 @@ form > .buttons {
 }
 
 @media screen and (max-width: 480px) {
-	body { padding: 0; }
+	body { padding: 5px; }
 }
 

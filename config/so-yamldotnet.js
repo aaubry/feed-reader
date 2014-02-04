@@ -13,5 +13,6 @@ exports.configure = function(builder) {
 				body: i.summary,
 				pubDate: i.published
 			};
-		});
+		})
+		.excludeExisting();
 };

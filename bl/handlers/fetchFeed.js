@@ -52,6 +52,8 @@ extractors["text/xml"] = function(body, cb) {
 	}
 };
 
+extractors["application/xml"] = extractors["text/xml"];
+
 function extract_rss(doc, cb) {
 	var nodes = doc.find("/rss/channel/item");
 
