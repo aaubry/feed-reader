@@ -20,13 +20,9 @@ exports.registerRoutes = function(app, dbFactory) {
 	app.get("/i/:id", view);
 
 	function categories(req, res) {
-		var categories = config.categories.map(function(category, i) {
-			return { id: i, name: category.name };
-		});
-		
 		res.render("home/categories", {
 			title: "Categories",
-			items: categories
+			items: config.categories
 		});
 	}
 
@@ -51,8 +47,8 @@ exports.registerRoutes = function(app, dbFactory) {
 					thumbUrl: true
 				};
 				
-				var categoryId = parseInt(req.params.id);
-				var category = config.categories[categoryId];
+				var categoryId = req.params.id;
+				var category = config.getCategoryById(categoryId);
 				var feedIds = category.feeds.map(function(feed) { return feed.id; });
 				
 				console.log(feedIds);

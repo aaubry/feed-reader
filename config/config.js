@@ -8,29 +8,7 @@
 */
 
 exports.config = {
-	categories: [
-		{
-			name: "BD",
-			feeds: [
-				require("./smbc"),
-				require("./lewis-trondheim-projets"),
-				require("./xkcd")
-			]
-		},
-		{
-			name: "Interesting",
-			feeds: [
-				require("./codinghorror"),
-				require("./so-yamldotnet")
-			]
-		},
-		{
-			name: "Misc",
-			feeds: [
-				require("./hackernews")
-			]
-		}
-	],
+	categories: require("./feeds").categories,
 	
 	getAllFeeds: function() {
 		var feeds = [];
@@ -38,6 +16,14 @@ exports.config = {
 			feeds.push.apply(feeds, category.feeds);
 		});
 		return feeds;
+	},
+	
+	getCategoryById: function(id) {
+		var categories = this.categories;
+		for(var i = 0; i < categories.length; ++i) {
+			if(categories[i].id == id) return categories[i];
+		}
+		return null;
 	},
 	
 	getFeedById: function(id) {

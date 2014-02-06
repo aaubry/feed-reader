@@ -54,33 +54,35 @@ extractors["text/xml"] = function(body, cb) {
 
 extractors["application/xml"] = extractors["text/xml"];
 
+function xml_node_to_object(node) {
+	var result = {};
+	node.find("*").forEach(function(c) {
+		var name = c.name();
+
+		var ns = c.namespace();
+		if(ns != null) {
+			var prefix = ns.prefix();
+			if(prefix != null) name = prefix + ":" + name;
+		}
+
+		result[name] = c.text();
+	});
+	return result;
+}
+
+function xml_nodeset_to_array(nodeset) {
+	return nodes.map(xml_node_to_object);
+}
+
 function extract_rss(doc, cb) {
 	var nodes = doc.find("/rss/channel/item");
-
-	var items = nodes.map(function(n) {
-
-		var result = {};
-		n.find("*").forEach(function(c) {
-			result[c.name()] = c.text();
-		});
-		return result;
-	});
-
+	var items = nodes.map(xml_node_to_object);
 	cb(null, items);
 }
 
 function extract_atom(doc, cb) {
 	var ns = { "a": "http://www.w3.org/2005/Atom" };
-        var nodes = doc.find("/a:feed/a:entry", ns);
-
-        var items = nodes.map(function(n) {
-
-                var result = {};
-                n.find("*").forEach(function(c) {
-                        result[c.name()] = c.text();
-                });
-                return result;
-        });
-
-        cb(null, items);
+	var nodes = doc.find("/a:feed/a:entry", ns);
+	var items = nodes.map(xml_node_to_object);
+	cb(null, items);
 }
