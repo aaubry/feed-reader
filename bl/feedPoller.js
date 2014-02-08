@@ -9,7 +9,7 @@ var TaskScheduler = require("./task").TaskScheduler;
 
 var async = require("async");
 
-var config = require("../config/config").config;
+var config = require("../config/config");
 
 exports.pollAll = function(dbFactory, cb) {
 

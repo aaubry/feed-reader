@@ -7,6 +7,7 @@ var system = require("system");
 //var url = "http://www.motherjones.com/politics/2013/08/mesh-internet-privacy-nsa-isp";
 
 var url = system.args[1];
+var selector = system.args[2];
 
 page.settings.javascriptEnabled = true;
 page.settings.loadImages = false;
@@ -17,14 +18,19 @@ page.onError = function(err) { /* Ignore errors */ }
 page.open(url, page_loaded);
 
 function page_loaded(status) {
-
-	var html = page.evaluate(extract_main_content);
+	
+	var html = page.evaluate(extract_main_content, selector);
 	console.log(html);
 	phantom.exit();
 
-	function extract_main_content() {
+	function extract_main_content(selector) {
 		try {
 			remove_invalid_elements(document.body);
+			if(selector != null) {
+				var content = document.querySelector(selector);
+				return content.outerHTML;
+			}
+			
 			assign_ids(document.body, 0);
 
 			var textNodes = [];

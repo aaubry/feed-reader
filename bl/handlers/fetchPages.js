@@ -1,7 +1,7 @@
 var async = require("async");
 var phantom = require("../phantom");
 
-exports.builder = function(urlField, targetField) {
+exports.builder = function(urlField, targetField, selector) {
 	urlField = urlField || "link";
 	targetField = targetField || "body";
 
@@ -11,7 +11,7 @@ exports.builder = function(urlField, targetField) {
 		handler: function(item, args, context, cb) {
 			try {
 				var url = item[urlField];
-				phantom.execute("extract_main_content.js", url, html_extracted);
+				phantom.execute("extract_main_content.js", url, selector, html_extracted);
 			} catch(err) { return cb(err); }
 
 			function html_extracted(err, html) {

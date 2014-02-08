@@ -5,7 +5,7 @@ exports.builder = function(projection) {
 		weight: 1,
 		handler: function(item, args, context, cb) {
 			try {
-				var maxStringLength = 80;
+				var maxStringLength = 180;
 			
 				var itemCopy = {};
 				for(var k in item) {

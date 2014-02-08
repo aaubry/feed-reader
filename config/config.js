@@ -1,36 +1,27 @@
 
-/*
-	feed: {
-		id: string,
-		name: string,
-		configure: function
-	}
-*/
+var feeds = [];
+var categories = require("./feeds").categories;
+categories.forEach(function(category) {
+	categories[category.id] = category;
+	category.feeds.forEach(function(feed) {
+		feeds.push(feed);
+		feeds[feed.id] = feed;
+		category.feeds[feed.id] = feed;
+	});
+});
 
-exports.config = {
-	categories: require("./feeds").categories,
-	
-	getAllFeeds: function() {
-		var feeds = [];
-		this.categories.forEach(function(category) {
-			feeds.push.apply(feeds, category.feeds);
-		});
-		return feeds;
-	},
-	
-	getCategoryById: function(id) {
-		var categories = this.categories;
-		for(var i = 0; i < categories.length; ++i) {
-			if(categories[i].id == id) return categories[i];
-		}
-		return null;
-	},
-	
-	getFeedById: function(id) {
-		var feeds = this.getAllFeeds();
-		for(var i = 0; i < feeds.length; ++i) {
-			if(feeds[i].id == id) return feeds[i];
-		}
-		return null;
-	}
-}
+exports.getAllCategories = function() {
+	return categories;
+};
+
+exports.getAllFeeds = function() {
+	return feeds;
+};
+
+exports.getCategoryById = function(id) {
+	return categories[id];
+};
+
+exports.getFeedById = function(id) {
+	return feeds[id];
+};

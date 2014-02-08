@@ -11,7 +11,7 @@ var error = require("../bl/error"),
 var mongodb = require("mongodb"),
 	ObjectID = mongodb.ObjectID;
 	
-var config = require("../config/config").config;
+var config = require("../config/config");
 
 exports.registerRoutes = function(app, dbFactory) {
 
@@ -22,7 +22,7 @@ exports.registerRoutes = function(app, dbFactory) {
 	function categories(req, res) {
 		res.render("home/categories", {
 			title: "Categories",
-			items: config.categories
+			items: config.getAllCategories()
 		});
 	}
 
@@ -51,8 +51,6 @@ exports.registerRoutes = function(app, dbFactory) {
 				var category = config.getCategoryById(categoryId);
 				var feedIds = category.feeds.map(function(feed) { return feed.id; });
 				
-				console.log(feedIds);
-				
 				coll.find({ feedId: { $in: feedIds } }, fields, options).sort({ pubDate: -1 }, closeOnError(db, handleAppError(res, items_sorted)));
 
 				function items_sorted(cursor) {
@@ -62,7 +60,8 @@ exports.registerRoutes = function(app, dbFactory) {
 				function items_retrieved(items) {
 					res.render("home/list", {
 						title: "Feed Items",
-						items: items
+						items: items,
+						category: category
 					});
 				}
 			}

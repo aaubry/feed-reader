@@ -23,6 +23,7 @@ exports.categories = [
 		feeds: [
 			{	id: "smbc",
 				name: "Saturday Morning Breakfast Cereals",
+				icon: "images/smbc.png",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("http://feeds.feedburner.com/smbc-comics/PvLb?format=xml")
@@ -40,6 +41,7 @@ exports.categories = [
 			},
 			{	id: "lewis",
 				name: "Lewis Trondheim Projets",
+				icon: "http://www.lewistrondheim.com/favicon.ico",
 				configure: function(builder) {
 					return builder
 						.fetchHtml("http://lewistrondheim.com/projets")
@@ -67,6 +69,7 @@ exports.categories = [
 			},
 			{	id: "xkcd",
 				name: "XKCD",
+				icon: "http://xkcd.com/s/919f27.ico",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("http://xkcd.com/rss.xml")
@@ -87,6 +90,67 @@ exports.categories = [
 						.excludeExisting()
 						.selectImage();
 				}
+			},
+			{	id: "cad",
+				name: "Ctrl+Alt+Del",
+				icon: "images/cad.png",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://cdn.cad-comic.com/rss.xml")
+						.where(function(i) {
+							return i.category == "Ctrl+Alt+Del";
+						})
+						.map(function(i) {
+							return {
+								title: i.title.replace("Ctrl+Alt+Del: ", ""),
+								guid: i.guid,
+								link: i.link,
+								pubDate: i.pubDate,
+								body: i.description
+							};
+						})
+						.excludeExisting()
+						.fetchPages(null, null, "#content > img")
+						.selectImage();
+				}
+			},
+			{	id: "samsam",
+				name: "Ma vie est un enfer (de dessin) !!!",
+				icon: "http://ddata.over-blog.com/xxxyyy/0/01/68/66/Autres/favicon.ico",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://samsam.over-blog.com/rss-articles.xml")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.link,
+								pubDate: i.pubDate,
+								body: i.description.replace(/\/\d+x\d+\//, "/750x400/")
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
+			},
+			{	id: "piratesourcil",
+				name: "PirateSourcil",
+				icon: "http://piratesourcil.blogspot.pt/favicon.ico",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://piratesourcil.blogspot.com/feeds/posts/default?alt=rss")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.link,
+								pubDate: i.pubDate,
+								body: i.description
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
 			}
 		]
 	},
@@ -95,6 +159,7 @@ exports.categories = [
 		feeds: [
 			{	id: "mmm",
 				name: "Mr Money Mustache",
+				icon: "http://www.mrmoneymustache.com/wp-content/uploads/2011/03/favicon1.jpg",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("http://feeds.feedburner.com/MrMoneyMustache?format=xml")
@@ -116,6 +181,7 @@ exports.categories = [
 			},
 			{	id: "raptitude",
 				name: "Raptitude",
+				icon: "http://www.raptitude.com/wp-content/themes/raptitude-theme/custom/skins/Raptitude-Skin/img/favicon.ico",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("http://feeds.feedburner.com/Raptitudecom?format=xml")
@@ -137,6 +203,7 @@ exports.categories = [
 			},
 			{	id: "codinghorror",
 				name: "Coding Horror",
+				icon: "http://www.codinghorror.com/favicon.ico",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("http://feeds.feedburner.com/codinghorror/")
@@ -155,6 +222,7 @@ exports.categories = [
 			},
 			{	id: "so-yamldotnet",
 				name: "StackOverflow YamlDotNet",
+				icon: "http://cdn.sstatic.net/stackoverflow/img/favicon.ico",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("http://stackoverflow.com/feeds/tag?tagnames=yamldotnet&sort=newest")
@@ -175,9 +243,9 @@ exports.categories = [
 	{	id: "news",
 		name: "News",
 		feeds: [
-			{
-				id: "hackernews",
+			{	id: "hackernews",
 				name: "Hacker News",
+				icon: "https://news.ycombinator.com/favicon.ico",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("https://news.ycombinator.com/rss")
