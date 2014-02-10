@@ -94,6 +94,10 @@ ul.feed-items li img.icon {
 	margin: 0;
 }
 
+.article img[style] {
+	height: auto !important;
+}
+
 ul.links {
 	border-top: 1px solid #000000;
     margin-top: 20px;
