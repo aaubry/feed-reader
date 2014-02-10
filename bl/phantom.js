@@ -3,11 +3,16 @@ var spawn = require("child_process").spawn;
 exports.execute = function(scriptFileName /*, arg1, arg2, arg3, cb*/) {
 	if(arguments.length < 2) throw "Invalid arguments";
 
-	var args = Array.prototype.slice.call(arguments, 0);
-	args[0] = "phantom_scripts/" + args[0];
-
-	var cb = args.pop();
+	var args = ["phantom_scripts/" + scriptFileName];
+	for(var i = 1; i < arguments.length - 1; ++i) {
+		if(arguments[i] != null) {
+			args.push(arguments[i]);
+		}
+	}
+	
+	var cb = arguments[arguments.length - 1];
 	args.unshift("--web-security=no");
+	args.unshift("--disk-cache=yes");
 
 	var stdout = [];
 	var stderr = [];

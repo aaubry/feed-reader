@@ -24,6 +24,7 @@ function page_loaded(status) {
 	phantom.exit();
 
 	function extract_main_content(selector) {
+	
 		try {
 			remove_invalid_elements(document.body);
 			if(selector != null) {
