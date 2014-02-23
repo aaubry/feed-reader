@@ -32,7 +32,7 @@ exports.execute = function(initialStep, context, cb) {
 				}
 			}
 
-			console.log("Completed %d steps of %d".green, completedSteps, estimatedSteps);
+			console.log("%s Completed %d steps of %d".green, new Date(), completedSteps, estimatedSteps);
 
 			if(step.next && err == null) {
 				items.forEach(function(i) {	
