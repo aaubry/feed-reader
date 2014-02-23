@@ -151,6 +151,25 @@ exports.categories = [
 						.excludeExisting()
 						.selectImage();
 				}
+			},
+			{	id: "vdp",
+				name: "Vida de Programador",
+				icon: "http://piratesourcil.blogspot.pt/favicon.ico",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://feeds.feedburner.com/VidaDeProgramador?format=xml")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.link,
+								pubDate: i.pubDate,
+								body: i.description
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
 			}
 		]
 	},
