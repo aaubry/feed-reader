@@ -187,7 +187,7 @@ exports.categories = [
 								title: i.title,
 								body: i["content:encoded"],
 								guid: i.guid,
-								link: i.origLink,
+								link: i.guid,
 								links: [
 									{ title: "Comments", link: i["wfw:commentRss"] }
 								],
