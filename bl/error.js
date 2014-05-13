@@ -18,9 +18,11 @@ function closeOnError(/*obj1, obj2, obj3, cb*/) {
 	var args = arguments;
 	return function(err, res) {
 		if(err) {
-			for(var i = args.length - 1; i > 0; --i) {
+			for(var i = args.length - 2; i >= 0; --i) {
 				args[i].close();
 			}
+			
+			console.log(err);
 		}
 		return args[args.length - 1](err, res);
 	};
