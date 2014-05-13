@@ -7,3 +7,9 @@
 	<meta name="viewport" content="width=device-width, target-densitydpi=165, minimum-scale=1.0, maximum-scale=1.0" />
   </head>
   <body>
+     <form method="get" action="search" class="search">
+	   <div class="field">
+         <span><input type="text" name="q" value="<%= query || '' %>" /></span>
+         <span><input type="submit" value="Search" /></span>
+       </div>
+     </form>

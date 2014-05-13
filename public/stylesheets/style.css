@@ -108,6 +108,31 @@ ul.links li {
 	list-style: none;
 }
 
+.clear {
+	clear: both;
+}
+
+.search {
+	border: solid #999 1px;
+	border-radius: 3px;
+	width: 100%;
+}
+
+.search > .field > span:nth-child(1) {
+	width: 80%;
+}
+
+.search > .field > span:nth-child(2) {
+	width: 20%;
+	border-left: solid #999 1px;
+}
+
+.search input {
+	border: none;
+	width: 100%;
+	padding: 2px 5px;
+}
+
 form {
 	display: table;
 }
@@ -145,6 +170,7 @@ form > .buttons {
     display: table-caption;
     text-align: right;
 }
+
 
 @media screen and (max-width: 480px) {
 	body { padding: 5px; }
