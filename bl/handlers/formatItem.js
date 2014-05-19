@@ -21,7 +21,8 @@ exports.builder = function() {
 					links: item.links,
 					pubDate: pubDate,
 					thumbUrl: item.thumbUrl,
-					imageData: item.imageData
+					imageData: item.imageData,
+					read: false
 				};
 				cb(null, feedItem);
 			} catch(err) { cb(err); }

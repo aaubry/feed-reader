@@ -1,5 +1,12 @@
 <a class="button" id="group" href="#groupped">Group</a>
 <a class="button" href="/">Categories</a>
+<% if(unread !== null) { %>
+	<% if(unread) { %>
+		<a class="button" href="?">Unread</a>
+	<% } else { %>
+		<a class="button" href="?unread=true">All</a>
+	<% } %>
+<% } %>
 <h1><%= category.name %></h1>
 <div id="items">
 	<ul class="feed-items" id="all-items">
