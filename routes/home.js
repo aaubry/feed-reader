@@ -46,6 +46,7 @@ exports.registerRoutes = function(app, dbFactory) {
 					feedId: true,
 					title: true,
 					thumbUrl: true,
+					read: true,
 					score: { $meta: "textScore" }
 				};
 				
@@ -90,7 +91,8 @@ exports.registerRoutes = function(app, dbFactory) {
 					_id: true,
 					feedId: true,
 					title: true,
-					thumbUrl: true
+					thumbUrl: true,
+					read: true
 				};
 				
 				var categoryId = req.params.id;
@@ -140,7 +142,8 @@ exports.registerRoutes = function(app, dbFactory) {
 					body: true,
 					link: true,
 					links: true,
-					pubDate: true
+					pubDate: true,
+					read: true
 				};
 
 				var cursor = coll.find({ _id: req.params.id }, fields, options);
