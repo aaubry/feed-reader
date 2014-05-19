@@ -259,6 +259,33 @@ exports.categories = [
 			}
 		]
 	},
+	{	id: "hacking",
+		name: "Hacking",
+		feeds: [
+			{	id: "hackaday",
+				name: "Hack a Day",
+				icon: "http://s1.wp.com/wp-content/themes/vip/hackaday2/images/favicon.ico?m=1353160633g",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://feeds2.feedburner.com/hackaday/LgoM")
+						.map(function(i) {
+							return {
+								title: i.title,
+								body: i["content:encoded"],
+								guid: i.guid,
+								link: i["feedburner:origLink"],
+								links: [
+									{ title: "Comments", link: i.comments }
+								],
+								pubDate: i.pubDate
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
+			}
+		]
+	},
 	{	id: "news",
 		name: "News",
 		feeds: [
@@ -280,28 +307,6 @@ exports.categories = [
 						})
 						.excludeExisting()
 						.fetchPages()
-						.selectImage();
-				}
-			},
-			{	id: "hackaday",
-				name: "Hack a Day",
-				icon: "http://s1.wp.com/wp-content/themes/vip/hackaday2/images/favicon.ico?m=1353160633g",
-				configure: function(builder) {
-					return builder
-						.fetchFeed("http://feeds2.feedburner.com/hackaday/LgoM")
-						.map(function(i) {
-							return {
-								title: i.title,
-								body: i["content:encoded"],
-								guid: i.guid,
-								link: i["feedburner:origLink"],
-								links: [
-									{ title: "Comments", link: i.comments }
-								],
-								pubDate: i.pubDate
-							};
-						})
-						.excludeExisting()
 						.selectImage();
 				}
 			}
