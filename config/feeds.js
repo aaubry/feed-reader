@@ -67,6 +67,31 @@ exports.categories = [
 						.excludeExisting();
 				}
 			},
+			{	id: "lpr",
+				name: "Les Petits Riens",
+				icon: "http://www.lewistrondheim.com/favicon.ico",
+				configure: function(builder) {
+					return builder
+						.fetchHtml("http://lewistrondheim.com/blog/")
+						.xpath(
+							"//h:p[h:img[@rel]]",
+							{
+								title: "h:font",
+								img: "h:img/@rel"
+							}
+						)
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.title,
+								link: "http://lewistrondheim.com/blog/#message_" + i.title,
+								body: text.format("<img src='http://lewistrondheim.com/blog/{img}' />", i),
+								thumbUrl: "http://lewistrondheim.com/blog/" + i.img
+							};
+						});
+						//.excludeExisting();
+				}
+			},
 			{	id: "xkcd",
 				name: "XKCD",
 				icon: "http://xkcd.com/s/919f27.ico",

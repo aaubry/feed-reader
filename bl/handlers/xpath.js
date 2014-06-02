@@ -14,7 +14,7 @@ exports.builder = function(itemsQuery, itemBuilder, namespaces, htmlField) {
 
 			var stdout = [];
 			var stderr = [];
-			var process = spawn("tidy", ["-asxhtml", "-q"]);
+			var process = spawn("tidy", ["-asxhtml", "-q", "--numeric-entities", "y"]);
 			process.stdout.setEncoding("utf8");
 			process.stdout.on("data", on_process_stdout);
 			process.stderr.setEncoding("utf8");
@@ -44,12 +44,27 @@ exports.builder = function(itemsQuery, itemBuilder, namespaces, htmlField) {
 				var results = doc.find(itemsQuery, namespaces);
 				
 				var items = results.map(function(r) {
+					console.log(r.toString());
+				
 					var item = {};
 					for(var name in itemBuilder) {
-						item[name] = r.get(itemBuilder[name], namespaces).text();
+						var node = r.get(itemBuilder[name], namespaces);
+						
+						if(node != null) {
+							switch(node.type()) {
+								case "element":
+									item[name] = node.text();
+									break;
+								
+								case "attribute":
+									item[name] = node.value();
+									break;
+								
+								default:
+									throw new Error("Unsupported node type: " + node.type());
+							}
+						}
 					}
-					
-					item.x = r.get("h:td[1]//h:span//text()", namespaces).text();
 					
 					return item;
 				});
