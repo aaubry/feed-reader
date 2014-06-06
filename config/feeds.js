@@ -88,8 +88,8 @@ exports.categories = [
 								body: text.format("<img src='http://lewistrondheim.com/blog/{img}' />", i),
 								thumbUrl: "http://lewistrondheim.com/blog/" + i.img
 							};
-						});
-						//.excludeExisting();
+						})
+						.excludeExisting();
 				}
 			},
 			{	id: "xkcd",
@@ -277,6 +277,24 @@ exports.categories = [
 								link: i.id,
 								body: i.summary,
 								pubDate: i.published
+							};
+						})
+						.excludeExisting();
+				}
+			},
+			{	id: "rupeal",
+				name: "Rupeal",
+				icon: null,
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://rupeal.tumblr.com/rss")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.link,
+								body: i.description,
+								pubDate: i.pubDate
 							};
 						})
 						.excludeExisting();
