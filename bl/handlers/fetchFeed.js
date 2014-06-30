@@ -41,14 +41,20 @@ extractors["application/atom+xml"] = function(body, cb) {
 };
 
 extractors["text/xml"] = function(body, cb) {
-	var ns = { "a": "http://www.w3.org/2005/Atom" };
+	var ns = {
+		"a": "http://www.w3.org/2005/Atom",
+		"rss": "http://purl.org/rss/1.0/",
+		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	};
 	var doc = libxmljs.parseXml(body);
 	if(doc.get("/rss")) {
 		extract_rss(doc, cb);
-	} else if(doc.get("/feed", ns)) {
-        extract_atom(doc, cb);
+	} else if(doc.get("/a:feed", ns)) {
+		extract_atom(doc, cb);
+	} else if(doc.get("/rdf:RDF/rss:channel", ns)) {
+		extract_rdf_rss(doc, cb);
 	} else {
-		cb("Could not parse xml");
+		cb("Could not parse xml: " + body);
 	}
 };
 
@@ -80,9 +86,21 @@ function extract_rss(doc, cb) {
 	cb(null, items);
 }
 
+function extract_rdf_rss(doc, cb) {
+	var ns = {
+		"rss": "http://purl.org/rss/1.0/",
+		"rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	};
+
+	var nodes = doc.find("/rdf:RDF/rss:item", ns);
+	var items = nodes.map(xml_node_to_object);
+	cb(null, items);
+}
+
 function extract_atom(doc, cb) {
 	var ns = { "a": "http://www.w3.org/2005/Atom" };
 	var nodes = doc.find("/a:feed/a:entry", ns);
 	var items = nodes.map(xml_node_to_object);
 	cb(null, items);
 }
+

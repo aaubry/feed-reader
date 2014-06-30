@@ -196,7 +196,27 @@ exports.categories = [
 						.fetchPages(null, null, ".size-full")
 						.selectImage();
 				}
-			}
+			},
+                        {       id: "oatmeal",
+                                name: "The Oatmeal",
+                                icon: "http://theoatmeal.com/favicon.ico",
+                                configure: function(builder) {
+                                        return builder
+                                                .fetchFeed("http://feeds.feedburner.com/oatmealfeed?format=xml")
+                                                .map(function(i) {
+                                                        return {
+                                                                title: i.title,
+                                                                guid: i.link,
+                                                                link: i.link,
+                                                                pubDate: i["dc:date"],
+                                                                body: i.description
+                                                        };
+                                                })
+                                                .excludeExisting()
+						.selectImage()
+                                                .fetchPages(null, null, "#comic");
+                                }
+                        }
 		]
 	},
 	{	id: "interesting",
