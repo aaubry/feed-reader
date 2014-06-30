@@ -193,6 +193,7 @@ exports.categories = [
 							};
 						})
 						.excludeExisting()
+						.fetchPages(null, null, ".size-full")
 						.selectImage();
 				}
 			}
