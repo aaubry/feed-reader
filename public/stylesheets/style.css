@@ -42,6 +42,18 @@ ul.feed-items li.read {
 	opacity: 0.6;
 }
 
+ul.feed-items li m::before {
+    position: absolute;
+    right: 2px;
+    content: attr(data-val);
+    color: green;
+    font-size: 10px;
+}
+
+ul.feed-items li m[data-val='0']::before {
+	color: #777777;
+}
+
 ul.feed-items li a {
 	display: block;
 	position: absolute;

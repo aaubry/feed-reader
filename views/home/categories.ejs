@@ -2,6 +2,7 @@
 <ul class="feed-items">
 	<% for(var i = 0; i < items.length; ++i) { var item = items[i]; %>
 		<li>
+			<m data-val="<%= item.unread %>"></m>
 			<a href="/<%= item.id %>" title="<%= item.name %>">
 				<span><%= item.name %></span>
 				<img src="/images/folder.png" />

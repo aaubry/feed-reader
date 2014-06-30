@@ -21,11 +21,48 @@ exports.registerRoutes = function(app, dbFactory) {
 	app.get("/i/:id", view);
 	
 	function categories(req, res) {
-		res.render("home/categories", {
-			title: "Categories",
-			items: config.getAllCategories(),
-			query: req.query.q
-		});
+		var db = dbFactory();
+		db.open(closeOnError(db, handleAppError(res, db_opened)));
+
+		function db_opened(conn) {
+			conn.collection("Items", closeOnError(db, handleAppError(res, items_collection_opened)));
+
+			function items_collection_opened(coll) {
+				
+				var categoryItems = config.getAllCategories().map(function(cat) {
+					return {
+						id: cat.id,
+						name: cat.name,
+						feeds: cat.feeds,
+						unread: 0
+					};
+				});
+				
+				var remaining = categoryItems.length;
+				
+				categoryItems.forEach(function(category) {
+					
+					var feedIds = category.feeds.map(function(feed) { return feed.id; });
+					
+					coll.aggregate([
+						{ $match: { feedId: { $in: feedIds }, read: false } },
+						{ $group: { _id: null, count: { $sum: 1 } } }
+					], closeOnError(db, handleAppError(res, items_counted)));
+					
+					function items_counted(result) {
+						if(result.length > 0) category.unread = result[0].count;
+						
+						if(--remaining == 0) {
+							res.render("home/categories", {
+								title: "Categories",
+								items: categoryItems,
+								query: req.query.q
+							});
+						}
+					}
+				});
+			}
+		}
 	}
 
 	function search(req, res) {
