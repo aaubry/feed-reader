@@ -376,8 +376,8 @@ exports.categories = [
 			}
 		]
 	},
-	{	id: "funny",
-		name: "Funny",
+	{	id: "developer-misery",
+		name: "Developer Misery",
 		feeds: [
 			{	id: "devreac",
 				name: "Developer Reactions",
