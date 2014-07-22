@@ -384,7 +384,7 @@ exports.categories = [
 				icon: "http://38.media.tumblr.com/avatar_cbd9440e0f21_128.png",
 				configure: function(builder) {
 					return builder
-						.fetchJson("http://developer-reactions.ruilopes.com/api/reactions?limit=10000")
+						.fetchJson("http://developer-reactions.ruilopes.com/api/reactions?limit=50")
 						.map(function(i) {
 							var thumbUrl = null;
 							if(i.poster) {
