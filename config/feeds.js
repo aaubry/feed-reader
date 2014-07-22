@@ -13,7 +13,7 @@ Feed item format:
 	}],
 	pubDate: string,
 	thumbUrl: url,
-	imageDate: stream
+	imageData: stream
 }
 */
 
@@ -197,26 +197,26 @@ exports.categories = [
 						.selectImage();
 				}
 			},
-                        {       id: "oatmeal",
-                                name: "The Oatmeal",
-                                icon: "http://theoatmeal.com/favicon.ico",
-                                configure: function(builder) {
-                                        return builder
-                                                .fetchFeed("http://feeds.feedburner.com/oatmealfeed?format=xml")
-                                                .map(function(i) {
-                                                        return {
-                                                                title: i.title,
-                                                                guid: i.link,
-                                                                link: i.link,
-                                                                pubDate: i["dc:date"],
-                                                                body: i.description
-                                                        };
-                                                })
-                                                .excludeExisting()
+			{	id: "oatmeal",
+				name: "The Oatmeal",
+				icon: "http://theoatmeal.com/favicon.ico",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://feeds.feedburner.com/oatmealfeed?format=xml")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.link,
+								link: i.link,
+								pubDate: i["dc:date"],
+								body: i.description
+							};
+						})
+						.excludeExisting()
 						.selectImage()
-                                                .fetchPages(null, null, "#comic");
-                                }
-                        }
+						.fetchPages(null, null, "#comic");
+				}
+			}
 		]
 	},
 	{	id: "interesting",
@@ -375,5 +375,46 @@ exports.categories = [
 				}
 			}
 		]
-	}
+	},
+	{	id: "funny",
+		name: "Funny",
+		feeds: [
+			{	id: "devreac",
+				name: "Developer Reactions",
+				icon: "http://38.media.tumblr.com/avatar_cbd9440e0f21_128.png",
+				configure: function(builder) {
+					return builder
+						.fetchJson("http://developer-reactions.ruilopes.com/api/reactions?limit=10000")
+						.map(function(i) {
+							var thumbUrl = null;
+							if(i.poster) {
+								i.poster.forEach(function(p) {
+									if(thumbUrl == null || p.type == "jpeg") thumbUrl = p.url;
+								});
+							}
+							
+							var body = ['<video loop="loop" controls="controls" autoplay="autoplay" poster="', thumbUrl, '" style="width: 100%;">'];
+
+							i.video.forEach(function(v) {
+								body.push('<source src="', v.url, '" type="video/', v.type, '"></source>');
+							});
+							
+							body.push('</video>');
+							
+							return {
+								title: i.title,
+								body: body.join(""),
+								guid: "http://developer-reactions.ruilopes.com/reaction/" + i.id,
+								link: "http://developer-reactions.ruilopes.com/reaction/" + i.id,
+								thumbUrl: thumbUrl,
+								links: [
+									{ title: "Source", link: i.sourceUrl }
+								]
+							};
+						})
+						.excludeExisting();
+				}
+			}
+		]
+	}	
 ];
