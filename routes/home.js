@@ -106,6 +106,8 @@ exports.registerRoutes = function(app, dbFactory) {
 				}
 
 				function items_retrieved(items) {
+					if(req.user == null) items.forEach(function(i) { i.read = false; });
+					
 					res.render("home/list", {
 						title: "Feed Items",
 						items: items,
@@ -160,7 +162,7 @@ exports.registerRoutes = function(app, dbFactory) {
 				}
 
 				function items_retrieved(items) {
-					if(!req.user) items.forEach(function(i) { i.read = false; });
+					if(req.user == null) items.forEach(function(i) { i.read = false; });
 					
 					res.render("home/list", {
 						title: "Feed Items",
