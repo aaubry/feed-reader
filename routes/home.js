@@ -21,6 +21,7 @@ exports.registerRoutes = function(app, dbFactory) {
 	app.get("/i/:id", view);
 	
 	function categories(req, res) {
+		
 		var db = dbFactory();
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
@@ -56,7 +57,8 @@ exports.registerRoutes = function(app, dbFactory) {
 							res.render("home/categories", {
 								title: "Categories",
 								items: categoryItems,
-								query: req.query.q
+								query: req.query.q,
+								feeds: null
 							});
 						}
 					}
@@ -87,9 +89,15 @@ exports.registerRoutes = function(app, dbFactory) {
 					score: { $meta: "textScore" }
 				};
 				
-				var query = req.query.q;
+				var queryText = req.query.q;
+				var queryFeed = req.query.f;
 				
-				coll.find({ $text: { $search: query } }, fields, options).sort({ score: { $meta: "textScore" } }, closeOnError(db, handleAppError(res, items_sorted)));
+				var query = { $text: { $search: queryText } };
+				if(queryFeed) {
+					query.feedId = { $in: queryFeed.split(',') };
+				}
+				
+				coll.find(query, fields, options).sort({ score: { $meta: "textScore" } }, closeOnError(db, handleAppError(res, items_sorted)));
 
 				function items_sorted(cursor) {
 					cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
@@ -102,7 +110,8 @@ exports.registerRoutes = function(app, dbFactory) {
 						category: {
 							name: "Search Results"
 						},
-						query: query,
+						query: queryText,
+						feeds: queryFeed,
 						unread: null
 					});
 				}
@@ -133,13 +142,12 @@ exports.registerRoutes = function(app, dbFactory) {
 				};
 				
 				var categoryId = req.params.id;
-				var read = req.params.read || false;
 				var category = config.getCategoryById(categoryId);
 				var feedIds = category.feeds.map(function(feed) { return feed.id; });
 				
 				var filter = { feedId: { $in: feedIds } };
 				
-				if(!req.query.unread) {
+				if(!req.query.unread && req.user != null) {
 					filter.read = false;
 				}
 								
@@ -150,11 +158,14 @@ exports.registerRoutes = function(app, dbFactory) {
 				}
 
 				function items_retrieved(items) {
+					if(!req.user) items.forEach(function(i) { i.read = false; });
+					
 					res.render("home/list", {
 						title: "Feed Items",
 						items: items,
 						category: category,
 						query: req.query.q,
+						feeds: feedIds.join(','),
 						unread: req.query.unread || false
 					});
 				}
@@ -180,7 +191,8 @@ exports.registerRoutes = function(app, dbFactory) {
 					link: true,
 					links: true,
 					pubDate: true,
-					read: true
+					read: true,
+					feedId: true
 				};
 
 				var cursor = coll.find({ _id: req.params.id }, fields, options);
@@ -193,7 +205,7 @@ exports.registerRoutes = function(app, dbFactory) {
 
 					var item = items[0];
 					
-					if(!item.read) {
+					if(!item.read && req.user) {
 						item.read = true;
 						coll.update({ _id: item._id }, { $set: { read: true } }, item_marked_as_read);
 					}
@@ -201,7 +213,8 @@ exports.registerRoutes = function(app, dbFactory) {
 					res.render("home/view", {
 						title: item.title,
 						item: item,
-						query: req.query.q
+						query: req.query.q,
+						feeds: item.feedId
 					});
 					
 					function item_marked_as_read(err) {
