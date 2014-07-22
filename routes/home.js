@@ -15,6 +15,8 @@ var config = require("../config/config");
 
 exports.registerRoutes = function(app, dbFactory) {
 
+	app.get("/robots.txt", robots);
+	
 	app.get("/", categories);
 	app.get("/search", search);
 	app.get("/:id", list);
@@ -225,5 +227,8 @@ exports.registerRoutes = function(app, dbFactory) {
 		}
 	}
 
+	function robots(req, res) {
+		res.send("User-agent: *\nDisallow: /");
+	}
 };
 
