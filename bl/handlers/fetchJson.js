@@ -1,12 +1,16 @@
 var http = require("../http");
 
-exports.builder = function(url) {
+exports.builder = function(url, append) {
 	return {
 		name: "Fetch JSON data",
 		weight: 3,
 		handler: function(item, args, context, cb) {
 			try {
-				http.get(url, response_available);
+				if(typeof url === "function") {
+					url = url(item);
+				}
+
+				http.get(url, { Accept: "application/json" }, response_available);
 			} catch(err) { return cb(err); }
 
 			function response_available(err, response, body) {
@@ -14,6 +18,16 @@ exports.builder = function(url) {
 					if(err) return cb(err, null);
 
 					var items = JSON.parse(body);
+					
+					if(append) {
+						if(item == null) {
+							item = { results: [] };
+						}
+						
+						item.results.push(items);
+						items = item;
+					}
+					
 					cb(null, items);
 				} catch(err) { return cb(err); }
 			}

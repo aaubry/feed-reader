@@ -35,3 +35,12 @@ fs.readdirSync("./bl/handlers").forEach(function(handlerFileName) {
 		return this;
 	};
 });
+
+fs.readdirSync("./bl/macros").forEach(function(macroFileName) {
+	var name = /^(.*)\.js$/.exec(macroFileName)[1];
+	var handler = require("./macros/" + name);
+	exports.PipelineBuilder.prototype[name] = function() {
+		handler.exec.apply(this, arguments);
+		return this;
+	};
+});

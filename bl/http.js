@@ -1,9 +1,14 @@
 var request = require("request");
 var zlib = require("zlib");
 
-exports.get = function(url, cb) {
+exports.get = function(url, headers, cb) {
+	if(arguments.length == 2) {
+		cb = headers;
+		headers = null;
+	}
+	
 	try {
-		var options = { url: url };
+		var options = { url: url, headers: headers };
 		var req = request(options);
 		
 		req.on("response", function(response) {
