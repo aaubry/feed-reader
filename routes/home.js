@@ -94,7 +94,12 @@ exports.registerRoutes = function(app, dbFactory) {
 				var queryText = req.query.q;
 				var queryFeed = req.query.f;
 				
-				var query = { $text: { $search: queryText } };
+				var query = {};
+				
+				if(queryText) {
+					query["$text"] = { $search: queryText };
+				}
+				
 				if(queryFeed) {
 					query.feedId = { $in: queryFeed.split(',') };
 				}
