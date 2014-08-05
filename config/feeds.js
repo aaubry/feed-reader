@@ -216,6 +216,25 @@ exports.categories = [
 						.selectImage()
 						.fetchPages(null, null, "#comic");
 				}
+			},
+			{	id: "geekandpoke",
+				name: "Geek&Poke",
+				icon: "http://geek-and-poke.com/favicon.ico",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://feeds.feedburner.com/GeekAndPoke?format=xml")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.link,
+								link: i.link,
+								pubDate: i["dc:date"],
+								body: i.description
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
 			}
 		]
 	},

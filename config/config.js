@@ -19,9 +19,13 @@ exports.getAllFeeds = function() {
 };
 
 exports.getCategoryById = function(id) {
-	return categories[id];
+	var category = categories[id];
+	if(!category) throw new Error("Category not found: " + id);
+	return category;
 };
 
 exports.getFeedById = function(id) {
-	return feeds[id];
+	var feed = feeds[id];
+	if(!feed) throw new Error("Feed not found: " + id);
+	return feed;
 };
