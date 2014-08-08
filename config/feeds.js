@@ -6,6 +6,7 @@ Feed item format:
 	title: string,
 	body: string,
 	guid: string,
+	data: object,
 	link: url,
 	links: [{
 		title: string,
@@ -442,5 +443,45 @@ exports.categories = [
 				}
 			}
 		]
-	}	
+	},
+	{	id: "tools",
+		name: "Tools",
+		feeds: [
+			{	id: "so-yamldotnet",
+				name: "StackOverflow YamlDotNet Questions",
+				icon: "http://cdn.sstatic.net/stackoverflow/img/favicon.ico?v=038622610830",
+				configure: function(builder) {
+					return builder
+						.fetchJson("https://api.stackexchange.com/2.2/questions?key=olaBEuNGTNR)p9vSM4FDXw((&access_token=NKhBnzIZwnMlpvP6FrojGQ))&site=stackoverflow&tagged=yamldotnet&filter=*bKJEp(C98z_3dP5(4VBhAa5257UIPOcgaQ5.qJWH")
+						.map(function(item) { return item.items; })
+						.where(function(item) {
+							return (item.upvoted || item.owner.user_id == 2680) && item.answers != null;
+						})
+						.map(function(item) {
+							var selectedAnswer = null;
+							item.answers.forEach(function(a) {
+								var isRelevantAnswer = (a.owner.user_id == 2680 || a.is_accepted || a.upvoted || selectedAnswer == null) && !a.downvoted;
+								if(isRelevantAnswer) {
+									selectedAnswer = a;
+								}
+							});
+							
+							return {
+								title: item.title,
+								body: item.body,
+								guid: item.link,
+								link: item.link,
+								data: {
+									answer: selectedAnswer != null ? selectedAnswer.body : null
+								}
+							};
+						})
+						.where(function(item) {
+							return item.data.answer != null;
+						})
+						.excludeExisting();
+				}
+			}
+		]
+	}
 ];
