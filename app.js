@@ -65,8 +65,8 @@ function launchServer(secure) {
 		  console.log("Express server listening on port 443");
 		});
 	} else {
-		http.createServer(app).listen(80, function(){
-			console.log("Express server listening on port 80");
+		http.createServer(app).listen(8080, function(){
+			console.log("Express server listening on port 8080");
 		});
 	}
 }
