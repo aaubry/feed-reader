@@ -1,14 +1,13 @@
-
-/**
- * Module dependencies.
- */
-
 var express = require("express")
   , http = require("http")
   , https = require("https")
   , path = require("path")
   , fs = require("fs")
   , bcrypt = require("bcrypt");
+
+var logFile = fs.createWriteStream("/var/log/feed-site.log", { flags: "a" });
+process.__defineGetter__("stdout", function() { return logFile; });
+process.__defineGetter__("stderr", function() { return logFile; });
 
 var expressLayouts = require("express-ejs-layouts");
 
@@ -25,7 +24,7 @@ function launchServer(secure) {
 	app.set("view engine", "ejs");
 	app.use(expressLayouts);
 	app.use(express.favicon());
-	app.use(express.logger("dev"));
+	app.use(express.logger({ stream: logFile }));
 
 	if(secure) {
 		var protectedPassword = "$2a$10$qermVMgGvGiiCLw3lqFGaecyuGTwmjtsl.JmCWQSKlUpFRRLQURWu";
@@ -54,6 +53,14 @@ function launchServer(secure) {
 
 	require("./routes/home").registerRoutes(app, dbFactory);
 
+	function dropPrivileges() {
+		// Check if we are running as root
+		if (process.getgid() === 0) {
+			process.setgid("nogroup");
+			process.setuid("nobody");
+		}
+	}
+
 	if(secure) {
 		var options = {
 			key: fs.readFileSync("ssl/key.pem"),
@@ -61,12 +68,14 @@ function launchServer(secure) {
 			cert: fs.readFileSync("ssl/cert.pem")
 		};
 
-		https.createServer(options, app).listen(443, function(){
-		  console.log("Express server listening on port 443");
+		return https.createServer(options, app).listen(443, function(){
+			console.log("Express server listening on port 443");
+			dropPrivileges();
 		});
 	} else {
-		http.createServer(app).listen(8080, function(){
+		return http.createServer(app).listen(8080, function(){
 			console.log("Express server listening on port 8080");
+			dropPrivileges();
 		});
 	}
 }
@@ -74,6 +83,18 @@ function launchServer(secure) {
 function database_initialized(err) {
 	if(err) throw err;
 
-	launchServer(true);
-	launchServer(false);
+	var secureServer = launchServer(true);
+	var insecureServer = launchServer(false);
+
+	process.on('SIGTERM', function () {
+		console.log("Stopping HTTPS server");
+		secureServer.close(function () {
+			console.log("Stopping HTTP server");
+			insecureServer.close(function () {
+				console.log("Exiting");
+				// Disconnect from cluster master
+				process.disconnect && process.disconnect();
+			});
+		});
+	});
 }
