@@ -19,6 +19,7 @@ exports.registerRoutes = function(app, dbFactory) {
 	
 	app.get("/", categories);
 	app.get("/search", search);
+	app.post("/_slack", slack);
 	app.get("/:id", list);
 	app.get("/i/:id", view);
 	
@@ -129,7 +130,6 @@ exports.registerRoutes = function(app, dbFactory) {
 	}
 	
 	function list(req, res) {
-
 		var db = dbFactory();
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
@@ -229,6 +229,74 @@ exports.registerRoutes = function(app, dbFactory) {
 					function item_marked_as_read(err) {
 						if(err) console.log(err);
 					}
+				}
+			}
+		}
+	}
+	
+	function slack(req, res) {
+		var db = dbFactory();
+		db.open(closeOnError(db, handleAppError(res, db_opened)));
+
+		function db_opened(conn) {
+			conn.collection("Items", closeOnError(db, handleAppError(res, items_collection_opened)));
+
+			function items_collection_opened(coll) {
+				var options = {
+					limit: 20
+				};
+
+				var fields = {
+					title: true,
+					thumbUrl: true,
+					link: true
+				};
+				
+				var feedId = req.body.trigger_word;
+				var filter = { feedId: feedId };
+				var sorting = { pubDate: -1 };
+
+				var queryText = req.body.text.substr(req.body.trigger_word.length + 1);
+				if(queryText.length > 0) {
+					filter["$text"] = { $search: queryText };
+					fields.score = { $meta: "textScore" };
+					sorting = { score: { $meta: "textScore" } };
+				}
+				
+				coll.find(filter, fields, options).sort(sorting, closeOnError(db, handleAppError(res, items_sorted)));
+
+				function items_sorted(cursor) {
+					cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
+				}
+
+				function items_retrieved(items) {
+					if(items.length == 0) {
+						res.send({ text: "not found :'("});
+						return;
+					}
+					
+					var itemIndex = Math.floor(Math.random() * items.length);
+					var item = items[itemIndex];
+					
+					var thumbUrl = "";
+					var useThumb = ["devreac", "vdp", "oatmeal"].indexOf(feedId) >= 0;
+					if(useThumb) {
+						thumbUrl = item.thumbUrl;
+						if(thumbUrl[0] == "/") {
+							thumbUrl = "http://feed.iron.aaubry.net" + thumbUrl;
+						}
+					
+						thumbUrl = " \n\n<" + thumbUrl + ">";
+					}
+					
+					var data = {
+						//text: "*" + item.title + "*" + thumbUrl + "\n\n<" + item.title + "|" + item.link + ">",
+						text: "<" + item.link + "|" + item.title + ">" + thumbUrl,
+						mrkdwn: true,
+						unfurl_links: false,
+						unfurl_media: false
+					};
+					res.send(data);
 				}
 			}
 		}

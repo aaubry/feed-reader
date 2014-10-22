@@ -4,10 +4,12 @@ var express = require("express")
   , path = require("path")
   , fs = require("fs")
   , bcrypt = require("bcrypt");
-
+  
+/*
 var logFile = fs.createWriteStream("/var/log/feed-site.log", { flags: "a" });
 process.__defineGetter__("stdout", function() { return logFile; });
 process.__defineGetter__("stderr", function() { return logFile; });
+*/
 
 var expressLayouts = require("express-ejs-layouts");
 
@@ -24,7 +26,9 @@ function launchServer(secure) {
 	app.set("view engine", "ejs");
 	app.use(expressLayouts);
 	app.use(express.favicon());
-	app.use(express.logger({ stream: logFile }));
+	app.use(express.logger());
+	app.use(express.urlencoded()); // to support URL-encoded bodies
+	//app.use(express.logger({ stream: logFile }));
 
 	if(secure) {
 		var protectedPassword = "$2a$10$qermVMgGvGiiCLw3lqFGaecyuGTwmjtsl.JmCWQSKlUpFRRLQURWu";
@@ -63,9 +67,9 @@ function launchServer(secure) {
 
 	if(secure) {
 		var options = {
-			key: fs.readFileSync("ssl/key.pem"),
-			ca: fs.readFileSync("ssl/csr.pem"),
-			cert: fs.readFileSync("ssl/cert.pem")
+			key: fs.readFileSync(path.join(__dirname, "ssl/key.pem")),
+			ca: fs.readFileSync(path.join(__dirname, "ssl/csr.pem")),
+			cert: fs.readFileSync(path.join(__dirname, "ssl/cert.pem"))
 		};
 
 		return https.createServer(options, app).listen(443, function(){
