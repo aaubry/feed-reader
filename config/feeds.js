@@ -340,7 +340,64 @@ exports.categories = [
 						})
 						.excludeExisting();
 				}
-			}
+			},
+			{	id: "jonskeet",
+				name: "Jon Skeet's coding blog",
+				icon: null,
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://codeblog.jonskeet.uk/feed/")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.link,
+								body: i.description,
+								pubDate: i.pubDate
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
+			},
+			{	id: "nicklarsen",
+				name: "Culture Of Development",
+				icon: null,
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://cultureofdevelopment.com/atom.xml")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.id,
+								link: i.id,
+								body: i.content,
+								pubDate: i.updated
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
+			},
+			{	id: "marcgravell",
+				name: "Code, code and more code",
+				icon: null,
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://feeds.feedburner.com/CodeCodeAndMoreCode?format=xml")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.id,
+								link: i["feedburner:origLink"],
+								body: i.content,
+								pubDate: i.published
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
+			},
 		]
 	},
 	{	id: "hacking",
@@ -438,46 +495,6 @@ exports.categories = [
 									{ title: "Source", link: i.sourceUrl }
 								]
 							};
-						})
-						.excludeExisting();
-				}
-			}
-		]
-	},
-	{	id: "tools",
-		name: "Tools",
-		feeds: [
-			{	id: "so-yamldotnet",
-				name: "StackOverflow YamlDotNet Questions",
-				icon: "http://cdn.sstatic.net/stackoverflow/img/favicon.ico?v=038622610830",
-				configure: function(builder) {
-					return builder
-						.fetchJson("https://api.stackexchange.com/2.2/questions?key=olaBEuNGTNR)p9vSM4FDXw((&access_token=NKhBnzIZwnMlpvP6FrojGQ))&site=stackoverflow&tagged=yamldotnet&filter=*bKJEp(C98z_3dP5(4VBhAa5257UIPOcgaQ5.qJWH")
-						.map(function(item) { return item.items; })
-						.where(function(item) {
-							return (item.upvoted || item.owner.user_id == 2680) && item.answers != null;
-						})
-						.map(function(item) {
-							var selectedAnswer = null;
-							item.answers.forEach(function(a) {
-								var isRelevantAnswer = (a.owner.user_id == 2680 || a.is_accepted || a.upvoted || selectedAnswer == null) && !a.downvoted;
-								if(isRelevantAnswer) {
-									selectedAnswer = a;
-								}
-							});
-							
-							return {
-								title: item.title,
-								body: item.body,
-								guid: item.link,
-								link: item.link,
-								data: {
-									answer: selectedAnswer != null ? selectedAnswer.body : null
-								}
-							};
-						})
-						.where(function(item) {
-							return item.data.answer != null;
 						})
 						.excludeExisting();
 				}

@@ -1,10 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html prefix="og: http://ogp.me/ns#">
   <head>
     <title><%= title %></title>
     <link rel="stylesheet" href="/stylesheets/style.css" />
 	<script type="text/javascript" src="/javascripts/jquery-2.0.3.min.js"></script>
 	<meta name="viewport" content="width=device-width, target-densitydpi=165, minimum-scale=1.0, maximum-scale=1.0" />
+	<% if(meta) { %>
+		<% for(var cat in meta) {
+			var category = meta[cat]; %>
+			
+			<% for(var key in category) { %>
+				<meta property="<%= cat %>:<%= key %>" content="<%= category[key] %>" />
+			<% } %>
+		<% } %>
+	<% } %>
   </head>
   <body>
      <form method="get" action="/search" class="search">
