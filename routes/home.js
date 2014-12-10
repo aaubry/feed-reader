@@ -3,19 +3,15 @@ var forms = require("forms"),
     validators = forms.validators,
 	widgets = forms.widgets;
 
-var crud  = require("../bl/crud");
 var error = require("../bl/error"),
 	handleAppError = error.handleAppError,
 	closeOnError = error.closeOnError;
 
-var mongodb = require("mongodb"),
-	ObjectID = mongodb.ObjectID;
-	
 var config = require("../config/config");
 
 var https = require("https");
 
-exports.registerRoutes = function(app, dbFactory) {
+exports.registerRoutes = function(app, esClient) {
 
 	app.get("/robots.txt", robots);
 	
@@ -28,24 +24,16 @@ exports.registerRoutes = function(app, dbFactory) {
 	
 	function categories(req, res) {
 		
-		var db = dbFactory();
-		db.open(closeOnError(db, handleAppError(res, db_opened)));
-
-		function db_opened(conn) {
-			conn.collection("Items", closeOnError(db, handleAppError(res, items_collection_opened)));
-
-			function items_collection_opened(coll) {
-				
-				var categoryItems = config.getAllCategories().map(function(cat) {
-					return {
-						id: cat.id,
-						name: cat.name,
-						feeds: cat.feeds,
-						unread: 0
-					};
-				});
-				
-				var remaining = categoryItems.length;
+		var categoryItems = config.getAllCategories().map(function(cat) {
+			return {
+				id: cat.id,
+				name: cat.name,
+				feeds: cat.feeds,
+				unread: 0
+			};
+		});
+		
+			/*	var remaining = categoryItems.length;
 				
 				categoryItems.forEach(function(category) {
 					
@@ -70,13 +58,20 @@ exports.registerRoutes = function(app, dbFactory) {
 						}
 					}
 				});
-			}
-		}
+			}*/
+		
+		res.render("home/categories", {
+			title: "Categories",
+			items: categoryItems,
+			query: req.query.q,
+			feeds: null,
+			meta: null
+		});		
 	}
 
 	function search(req, res) {
 
-		var db = dbFactory();
+		var db = esClient();
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
 		function db_opened(conn) {
@@ -135,7 +130,52 @@ exports.registerRoutes = function(app, dbFactory) {
 	}
 	
 	function list(req, res) {
-		var db = dbFactory();
+
+		var categoryId = req.params.id;
+		var category = config.getCategoryById(categoryId);
+		var feedIds = category.feeds.map(function(feed) { return feed.id; });
+
+		/* TODO
+		if(!req.query.unread && req.user != null) {
+			filter.read = false;
+		} */
+	
+		esClient.search({
+			index: "feeds",
+			_source: [ "id", "feedId", "title", "thumbUrl" ],
+			sort: [ "pubDate" ],
+			body: {
+				size: 150,
+				query: {
+					filtered: {
+						filter: {
+							terms: {
+								feedId: feedIds
+							}
+						}
+					}
+				}
+			}
+		}, handleAppError(res, search_complete));
+           
+		function search_complete(response) {
+			console.log(response.took);
+			
+			res.render("home/list", {
+				title: "Feed Items",
+				items: response.hits.hits.map(function(i) { return i._source }),
+				category: category,
+				query: req.query.q,
+				feeds: feedIds.join(','),
+				unread: req.query.unread || false,
+				meta: null
+			});			
+		}
+		
+		/*
+	
+	
+		var db = esClient();
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
 		function db_opened(conn) {
@@ -185,11 +225,65 @@ exports.registerRoutes = function(app, dbFactory) {
 					});
 				}
 			}
-		}
+		}*/
 	}
 
 	function view(req, res) {
-		var db = dbFactory();
+	
+		esClient.search({
+			index: "feeds",
+			body: {
+				size: 1,
+				query: {
+					filtered: {
+						filter: {
+							term: {
+								id: req.params.id
+							}
+						}
+					}
+				}
+			}
+		}, handleAppError(res, search_complete));
+           
+		function search_complete(response) {
+			console.log(response.took);
+			
+			var item = response.hits.hits[0]._source;
+			var feed = config.getFeedById(item.feedId);
+			
+			res.render("home/view", {
+				title: item.title,
+				item: item,
+				query: req.query.q,
+				feeds: item.feedId,
+				meta: {
+					og: {
+						locale:"en_US",
+						type: "article",
+						title: item.title,
+						description: item.title,
+						url: "http://feed.iron.aaubry.net/i/" + item._id,
+						site_name: feed.name,
+						image: item.thumbUrl
+					},
+					article: {
+						publisher: item.link,
+						section: "TODO"
+					},
+					twitter: {
+						card: "summary_large_image",
+						site: feed.name,
+						domain: feed.name,
+						"image:src": item.thumbUrl
+					}
+				}
+			});
+		}
+	
+	
+/*	
+		var db = esClient();
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
 		function db_opened(conn) {
@@ -261,7 +355,7 @@ exports.registerRoutes = function(app, dbFactory) {
 					}
 				}
 			}
-		}
+		}*/
 	}
 	
 	function postOnSlack(data) {
@@ -286,7 +380,7 @@ exports.registerRoutes = function(app, dbFactory) {
 	}
 	
 	function slackcmd(req, res) {
-		var db = dbFactory();
+		var db = esClient();
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
 		function db_opened(conn) {
@@ -362,7 +456,7 @@ exports.registerRoutes = function(app, dbFactory) {
 	}
 	
 	function slack(req, res) {
-		var db = dbFactory();
+		var db = esClient();
 		db.open(closeOnError(db, handleAppError(res, db_opened)));
 
 		function db_opened(conn) {

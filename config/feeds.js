@@ -398,6 +398,25 @@ exports.categories = [
 						.selectImage();
 				}
 			},
+			{	id: "ploeh",
+				name: "ploeh blog",
+				icon: null,
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://blog.ploeh.dk/rss.xml")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.link,
+								body: i.description,
+								pubDate: i.pubDate
+							};
+						})
+						.excludeExisting()
+						.selectImage();
+				}
+			},
 		]
 	},
 	{	id: "hacking",
@@ -427,8 +446,8 @@ exports.categories = [
 			}
 		]
 	},
-	{	id: "news",
-		name: "News",
+	{	id: "technews",
+		name: "Tech News",
 		feeds: [
 			{	id: "hackernews",
 				name: "Hacker News",
@@ -449,6 +468,31 @@ exports.categories = [
 						.excludeExisting()
 						.fetchPages()
 						.selectImage();
+				}
+			}
+		]
+	},
+	{	id: "news",
+		name: "News",
+		feeds: [
+			{	id: "publico",
+				name: "Público",
+				icon: "http://static.publico.pt/files/homepage/img/touch_icon_57x57.png",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://feeds.feedburner.com/PublicoRSS")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.link,
+								body: i.description,
+								pubDate: i.pubDate
+							};
+						})
+						.excludeExisting()
+						/*.fetchPages()
+						.selectImage()*/;
 				}
 			}
 		]

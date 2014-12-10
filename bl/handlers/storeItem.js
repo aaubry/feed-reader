@@ -5,12 +5,18 @@ exports.builder = function() {
 		weight: 1,
 		handler: function(item, args, context, cb) {
 			try {
-				context.db.insertOrUpdate(item, cb);
-				//context.db.insert(item, item_stored);
+				var date = item.pubDate;
+				
+				context.esClient.index({
+					index: "feeds",
+					type: "item",
+					id: item.id,
+					body: item
+				}, cb);
 			} catch(err) { cb(err); }
 
 			function item_stored(err) {
-				cb(err == null || err.code == 11000 ? null : err);
+				cb(err);
 			}
 		}
 	};

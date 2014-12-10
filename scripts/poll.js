@@ -1,6 +1,6 @@
 var program = require("commander");
 var feedPoller = require("../bl/feedPoller");
-var dbFactory = require("../bl/dbFactory").dbFactory;
+var elasticsearch = require("elasticsearch");
 
 program
 	.version("0.0.1")
@@ -16,10 +16,12 @@ function execute() {
 	console.log("#############");
 	console.log("");
 	
+	var esClient = elasticsearch.Client({ host: "localhost:9200" });
+	
 	if(program.feed) {
-		feedPoller.poll(dbFactory, program.feed, program.test, poll_complete);
+		feedPoller.poll(esClient, program.feed, program.test, poll_complete);
 	} else {
-		feedPoller.pollAll(dbFactory, poll_complete);
+		feedPoller.pollAll(esClient, poll_complete);
 	}
 }
 

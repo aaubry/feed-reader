@@ -11,7 +11,7 @@ exports.builder = function() {
 
 				var itemId = crypto.createHash("md5").update(item.guid).digest("hex");
 				var feedItem = {
-					_id: itemId,
+					id: itemId,
 					feedId: context.feedId,
 
 					title: item.title,
@@ -19,11 +19,9 @@ exports.builder = function() {
 					guid: item.guid,
 					link: item.link,
 					links: item.links,
-					data: item.data,
 					pubDate: pubDate,
 					thumbUrl: item.thumbUrl,
-					imageData: item.imageData,
-					read: false
+					readBy: []
 				};
 				cb(null, feedItem);
 			} catch(err) { cb(err); }

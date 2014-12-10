@@ -13,10 +13,21 @@ process.__defineGetter__("stderr", function() { return logFile; });
 
 var expressLayouts = require("express-ejs-layouts");
 
-var dbF = require("./bl/dbFactory");
-var dbFactory = dbF.dbFactory;
+var elasticsearch = require("elasticsearch");
+var secureServer = launchServer(true);
+var insecureServer = launchServer(false);
 
-dbF.initialize(database_initialized);
+process.on('SIGTERM', function () {
+	console.log("Stopping HTTPS server");
+	secureServer.close(function () {
+		console.log("Stopping HTTP server");
+		insecureServer.close(function () {
+			console.log("Exiting");
+			// Disconnect from cluster master
+			process.disconnect && process.disconnect();
+		});
+	});
+});
 
 function launchServer(secure) {
 	var app = express();
@@ -55,7 +66,8 @@ function launchServer(secure) {
 	  app.use(express.errorHandler());
 	}
 
-	require("./routes/home").registerRoutes(app, dbFactory);
+	var esClient = elasticsearch.Client({ host: "localhost:9200" });
+	require("./routes/home").registerRoutes(app, esClient);
 
 	function dropPrivileges() {
 		// Check if we are running as root
@@ -82,23 +94,4 @@ function launchServer(secure) {
 			dropPrivileges();
 		});
 	}
-}
-
-function database_initialized(err) {
-	if(err) throw err;
-
-	var secureServer = launchServer(true);
-	var insecureServer = launchServer(false);
-
-	process.on('SIGTERM', function () {
-		console.log("Stopping HTTPS server");
-		secureServer.close(function () {
-			console.log("Stopping HTTP server");
-			insecureServer.close(function () {
-				console.log("Exiting");
-				// Disconnect from cluster master
-				process.disconnect && process.disconnect();
-			});
-		});
-	});
 }
