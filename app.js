@@ -84,12 +84,12 @@ function launchServer(secure) {
 			cert: fs.readFileSync(path.join(__dirname, "ssl/cert.pem"))
 		};
 
-		return https.createServer(options, app).listen(443, function(){
+		return https.createServer(options, app).listen(443 /*3443*/, function(){
 			console.log("Express server listening on port 443");
 			dropPrivileges();
 		});
 	} else {
-		return http.createServer(app).listen(8080, function(){
+		return http.createServer(app).listen(8080 /*18080*/, function(){
 			console.log("Express server listening on port 8080");
 			dropPrivileges();
 		});
