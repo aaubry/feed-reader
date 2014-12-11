@@ -29,46 +29,70 @@ exports.registerRoutes = function(app, esClient) {
 				id: cat.id,
 				name: cat.name,
 				feeds: cat.feeds,
-				unread: 0
+				unread: -1
 			};
 		});
 		
-		console.log(req.user);
-		
-			/*	var remaining = categoryItems.length;
+		if(req.user != null) {
+			var remaining = categoryItems.length;
+			categoryItems.forEach(function(category) {
 				
-				categoryItems.forEach(function(category) {
-					
-					var feedIds = category.feeds.map(function(feed) { return feed.id; });
-					
-					coll.aggregate([
-						{ $match: { feedId: { $in: feedIds }, read: false } },
-						{ $group: { _id: null, count: { $sum: 1 } } }
-					], closeOnError(db, handleAppError(res, items_counted)));
-					
-					function items_counted(result) {
-						if(result.length > 0) category.unread = result[0].count;
-						
-						if(--remaining == 0) {
-							res.render("home/categories", {
-								title: "Categories",
-								items: categoryItems,
-								query: req.query.q,
-								feeds: null,
-								meta: null
-							});
+				var feedIds = category.feeds.map(function(feed) { return feed.id; });
+				
+				esClient.search({
+					index: "feeds",
+					searchType: "count",
+					body: {
+						query: {
+							filtered: {
+								filter: {
+									and: [
+										{
+											terms: {
+												feedId: feedIds
+											}
+										},
+										{
+											not: {
+												filter: {
+													term: {
+														readBy: req.user
+													}
+												}
+											}
+										}
+									]
+								}
+							}
 						}
 					}
-				});
-			}*/
-		
-		res.render("home/categories", {
-			title: "Categories",
-			items: categoryItems,
-			query: req.query.q,
-			feeds: null,
-			meta: null
-		});		
+				}, handleAppError(res, search_complete));
+				   
+				function search_complete(response) {
+					console.log({ queryTook: response.took, feedIds: feedIds.join(", ") });
+					
+					category.unread = response.hits.total;
+					
+					if(--remaining == 0) {
+						res.render("home/categories", {
+							title: "Categories",
+							items: categoryItems,
+							query: req.query.q,
+							feeds: null,
+							meta: null
+						});
+					}
+				}					
+			});
+		} else {
+			res.render("home/categories", {
+				title: "Categories",
+				items: categoryItems,
+				query: req.query.q,
+				feeds: null,
+				meta: null
+			});
+		}
 	}
 
 	function search(req, res) {
