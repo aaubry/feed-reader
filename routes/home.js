@@ -79,7 +79,8 @@ exports.registerRoutes = function(app, esClient) {
 							items: categoryItems,
 							query: req.query.q,
 							feeds: null,
-							meta: null
+							meta: null,
+							base: null
 						});
 					}
 				}					
@@ -90,7 +91,8 @@ exports.registerRoutes = function(app, esClient) {
 				items: categoryItems,
 				query: req.query.q,
 				feeds: null,
-				meta: null
+				meta: null,
+				base: null
 			});
 		}
 	}
@@ -144,7 +146,8 @@ exports.registerRoutes = function(app, esClient) {
 				query: queryText,
 				feeds: queryFeed,
 				unread: null,
-				meta: null
+				meta: null,
+				base: null
 			});
 		}
 	}
@@ -202,7 +205,8 @@ exports.registerRoutes = function(app, esClient) {
 				query: req.query.q,
 				feeds: feedIds.join(','),
 				unread: req.query.unread || false,
-				meta: null
+				meta: null,
+				base: null
 			});			
 		}
 	}
@@ -256,7 +260,8 @@ exports.registerRoutes = function(app, esClient) {
 						domain: feed.name,
 						"image:src": item.thumbUrl
 					}
-				}
+				},
+				base: item.link
 			});
 		}
 	}

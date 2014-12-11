@@ -7,11 +7,11 @@ exports.builder = function() {
 		handler: function(item, args, context, cb) {
 			try {
 				var itemId = crypto.createHash("md5").update(item.guid).digest("hex");
-				context.esClient.search({ index: "feeds-*", q: "id:" + itemId, searchType: "count" }, exists_available);
+				context.esClient.exists({ index: "feeds", type: "item", id: itemId }, exists_available);
 			} catch(err) { return cb(err); }
 
-			function exists_available(err, response) {
-				cb(err, response.hits.total != 0 ? null : item);
+			function exists_available(err, exists) {
+				cb(err, exists ? null : item);
 			}
 		}
 	};

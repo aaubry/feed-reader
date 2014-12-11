@@ -1,19 +1,15 @@
-var PipelineBuilder = require("../bl/PipelineBuilder").PipelineBuilder;
-var pipeline = require("../bl/pipeline");
-var dbFactory = require("../bl/dbFactory").dbFactory;
-var crud = require("../bl/crud");
+var request = require("request");
+var spawn = require("child_process").spawn;
 
-var builder = new PipelineBuilder();
-require("../config/xkcd").configure(builder);
+//var convert = spawn("identify", [ "-" ]);
+var convert = spawn("convert", [ "-resize", "100x100^", "-gravity", "center", "-crop", "100x100+0+0", "+repage", "-", "/home/aaubry/work/feed/crop.png" ]);
 
-builder.dump();
+convert.stdout.on('data', function (data) {
+	console.log('OUT: ' + data);
+});
 
-var feedItems = crud.create(dbFactory, "Items");
+convert.stderr.on('data', function (data) {
+	console.log('ERR: ' + data);
+});
 
-pipeline.execute(
-	builder.build(),
-	{ db: feedItems },
-	function() {
-		console.log("Done");
-	}
-);
+request("http://imagens0.publico.pt/imagens.aspx/890890?tp=UH&db=IMAGENS").pipe(convert.stdin);

@@ -14,7 +14,7 @@
 			var item = items[i];%>
 			<li data-feedid="<%= item.feedId %>" data-order="<%= i %>" class="<%= item.read ? "read" : "unread" %>">
 				<a href="/i/<%= item.id %>" title="<%= item.title %>">
-					<span><%= item.title %></span>
+					<span><%- item.title %></span>
 					<% if(item.thumbUrl) { %>
 						<img class="thumb" src="<%= item.thumbUrl %>" />
 					<% } %>

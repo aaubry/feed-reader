@@ -14,7 +14,8 @@ Feed item format:
 	}],
 	pubDate: string,
 	thumbUrl: url,
-	imageData: stream
+	imageData: stream (not stored),
+	imageUrl: url (not stored)
 }
 */
 
@@ -475,24 +476,55 @@ exports.categories = [
 	{	id: "news",
 		name: "News",
 		feeds: [
-			{	id: "publico",
+			/*{	id: "publico",
 				name: "Público",
 				icon: "http://static.publico.pt/files/homepage/img/touch_icon_57x57.png",
 				configure: function(builder) {
 					return builder
 						.fetchFeed("http://feeds.feedburner.com/PublicoRSS")
+						.fetchPages(null, null, ".entry-content")
 						.map(function(i) {
 							return {
 								title: i.title,
 								guid: i.guid,
+								link: i.meta.baseUrl || i.link,
+								body: "<img src=\"" + i.meta["twitter:image"].replace('"', "&quot;") + "\" /><br/>" + i.body,
+								pubDate: i.pubDate,
+								imageUrl: i.meta["twitter:image"]
+							};
+						})
+						//.excludeExisting()
+					;
+				}
+			},*/
+			{	id: "expresso-politica",
+				name: "Expresso - Política",
+				icon: "http://expresso.sapo.pt/favicon.ico",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://expresso.sapo.pt/static/rss/politica_25630.xml", "iso-8859-1")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.link,
 								link: i.link,
-								body: i.description,
-								pubDate: i.pubDate
+								pubDate: i.pubDate,
+								imageUrl: i.image
 							};
 						})
 						.excludeExisting()
-						/*.fetchPages()
-						.selectImage()*/;
+						.fetchPages(null, null, "#artigo", "footer, .article-social, .authoring, h1")
+						.map(function(i) {
+							return {
+								title: i.title,
+								guid: i.guid,
+								link: i.meta.baseUrl || i.link,
+								body: i.body,
+								pubDate: i.pubDate,
+								imageUrl: i.image
+							};
+						})
+					;
 				}
 			}
 		]

@@ -1,6 +1,6 @@
 <li>
 	<a href="/i/<%= item.id %>" title="<%= item.title %>">
-		<span><%= item.title %></span>
+		<span><%- item.title %></span>
 		<% if(item.thumbUrl) { %>
 			<img src="<%= item.thumbUrl %>" />
 		<% } %>

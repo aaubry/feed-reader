@@ -1,6 +1,6 @@
 var http = require("../http");
 
-exports.builder = function(url, append) {
+exports.builder = function(url, append, encoding) {
 	return {
 		name: "Fetch JSON data",
 		weight: 3,
@@ -10,7 +10,7 @@ exports.builder = function(url, append) {
 					url = url(item);
 				}
 
-				http.get(url, { Accept: "application/json" }, response_available);
+				http.get(url, { Accept: "application/json" }, encoding, response_available);
 			} catch(err) { return cb(err); }
 
 			function response_available(err, response, body) {

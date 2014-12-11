@@ -23,13 +23,16 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=4
-FILE_NAME_0=245;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fbl%2Fhandlers%2FfetchJson.js;0;4
-FILE_NAME_1=1130;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fbl%2FPipelineBuilder.js;0;4
-FILE_NAME_2=293;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fbl%2Fpipeline.js;0;4
-FILE_NAME_3=75;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fbl%2Fmacros%2Frepeat.js;0;4
-FILE_NAME_4=10814;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fconfig%2Ffeeds.js;0;4
-FILE_NAME_5=0;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2FWork%2Ffeed%2Fbl%2Fhandlers%2Fmap.js;0;4
+current_page=0
+FILE_NAME_0=12943;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fconfig%2Ffeeds.js;0;4
+FILE_NAME_1=2763;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fphantom_scripts%2Fextract_main_content.js;0;4
+FILE_NAME_2=431;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fbl%2Fhandlers%2FfetchPages.js;0;4
+FILE_NAME_3=1834;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Froutes%2Fhome.js;0;4
+FILE_NAME_4=623;HTML;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fviews%2Flayout_top.ejs;0;4
+FILE_NAME_5=276;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fbl%2Fhandlers%2FfetchFeed.js;0;4
+FILE_NAME_6=228;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fbl%2Fhttp.js;0;4
+FILE_NAME_7=472;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fbl%2Fhandlers%2FfetchJson.js;0;4
+FILE_NAME_8=114;Javascript;0;EUTF-8;1;1;0;%2Fhome%2Faaubry%2Fmnt%2Fbl%2Fhandlers%2FexcludeExisting.js;0;4
 
 [VTE]
 last_dir=/home/aaubry/Work/feed

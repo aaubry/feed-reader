@@ -43,6 +43,10 @@ function page_loaded(status) {
 			if(bestImageSize <= 0) {
 				return "";
 			}
+			
+			return bestImage.src;
+/*			
+			console.log(bestImage.outerHTML);
 
 			var canvas = document.createElement("canvas");
 			canvas.width = width;
@@ -70,6 +74,7 @@ function page_loaded(status) {
 			context.drawImage(bestImage, cx, cy, imageWidth, imageHeight);
 
 			if(imageWidth < width || imageHeight < height) { 
+			
 				var pixels = context.getImageData(cx, cy, 1, 1);
 				var bg = "rgba("
 					+ pixels.data[0]
@@ -78,6 +83,8 @@ function page_loaded(status) {
 					+ ", " + pixels.data[3] / 255
 					+ ")";
 					
+				var bg = "rgb(255, 255, 255)";
+					
 				context.fillStyle = bg;
 				context.fillRect(0, 0, width, height);
 				
@@ -85,8 +92,9 @@ function page_loaded(status) {
 			}
 			
 			var dataUrl = canvas.toDataURL("image/png");
+			console.log("here");
 			var data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
-			return data;
+			return data;*/
 		}
 		catch(e) {
 			console.log(e);

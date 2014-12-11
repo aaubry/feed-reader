@@ -3,13 +3,13 @@ var libxmljs = require("libxmljs");
 
 var extractors = {};
 
-exports.builder = function(url) {
+exports.builder = function(url, encoding) {
 	return {
 		name: "Fetch RSS/ATOM feed",
 		weight: 3,
 		handler: function(item, args, context, cb) {
 			try {
-				http.get(url, response_available);
+				http.get(url, null, encoding, response_available);
 			} catch(err) { return cb(err); }
 
 			function response_available(err, response, body) {

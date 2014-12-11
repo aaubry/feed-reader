@@ -21,7 +21,10 @@ exports.builder = function() {
 					links: item.links,
 					pubDate: pubDate,
 					thumbUrl: item.thumbUrl,
-					readBy: []
+					readBy: [],
+					
+					imageData: item.imageData,
+					imageUrl: item.imageUrl
 				};
 				cb(null, feedItem);
 			} catch(err) { cb(err); }

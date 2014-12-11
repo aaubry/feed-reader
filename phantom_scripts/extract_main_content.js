@@ -8,73 +8,116 @@ var system = require("system");
 
 var url = system.args[1];
 var selector = system.args[2];
+var exclusions = system.args[3];
 
 page.settings.javascriptEnabled = true;
 page.settings.loadImages = false;
+page.settings.userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36";
 
 //page.onConsoleMessage = function(msg) { console.log("console:", msg); };
-page.onError = function(err) { /* Ignore errors */ }
+page.onError = function(err) {
+	//console.log(err);
+	/* Ignore errors */
+}
 
 page.open(url, page_loaded);
 
 function page_loaded(status) {
 	
-	var html = page.evaluate(extract_main_content, selector);
-	console.log(html);
+	var pageData = page.evaluate(extract_main_content, selector, exclusions);
+	console.log(pageData);
 	phantom.exit();
 
-	function extract_main_content(selector) {
+	function extract_main_content(selector, exclusions) {
 	
 		try {
-			remove_invalid_elements(document.body);
-			if(selector != null) {
-				var content = document.querySelector(selector);
-				return content.outerHTML;
+			// Ensure that all images have absolute uris
+			var images = document.querySelectorAll("img");
+			Array.prototype.forEach.call(images, function(i) {
+				i.setAttribute("src", i.src);
+			});
+			
+			remove_invalid_elements(document.body, false);
+			
+			if(exclusions) {
+				var nodes = document.querySelectorAll(exclusions);
+				for(var i = 0; i < nodes.length; ++i) {
+					nodes[i].parentNode.removeChild(nodes[i]);
+				}
 			}
 			
-			assign_ids(document.body, 0);
-
-			var textNodes = [];
-			find_text_nodes(document.body, textNodes);
-
-			var textBlocks = find_parent_blocks(textNodes);
-			dump_text_blocks(textBlocks);
-
-			var currentBlockCount = textBlocks.length;
-			for(var i = 0; i < 2; ++i) {
-				textBlocks = aggregare_blocks(textBlocks);
-				dump_text_blocks(textBlocks);
-
-				if(currentBlockCount == textBlocks.length) break;
-				currentBlockCount = textBlocks.length;
-			}
-
-			var largestBlockElem = document.body;
-			var largestBlockLength = 0;
-
-			textBlocks.forEach(function(b) {
-				var length = b.texts.reduce(function(l, t) {
-					return l + t.nodeValue.length;
-				}, 0);
-
-				if(length > largestBlockLength) {
-					largestBlockElem = b.elem;
-					largestBlockLength = length;
+			var body = null;
+			
+			if(selector != null) {
+				var content = document.querySelector(selector);
+				if(content != null) {
+					body = content.outerHTML;
 				}
-			});
+			}
+			
+			if(body == null) {
+				remove_invalid_elements(document.body, true);
+			
+				assign_ids(document.body, 0);
 
-			return largestBlockElem.innerHTML;
+				var textNodes = [];
+				find_text_nodes(document.body, textNodes);
+
+				var textBlocks = find_parent_blocks(textNodes);
+				//dump_text_blocks(textBlocks);
+
+				var currentBlockCount = textBlocks.length;
+				for(var i = 0; i < 2; ++i) {
+					textBlocks = aggregare_blocks(textBlocks);
+					//dump_text_blocks(textBlocks);
+
+					if(currentBlockCount == textBlocks.length) break;
+					currentBlockCount = textBlocks.length;
+				}
+
+				var largestBlockElem = document.body;
+				var largestBlockLength = 0;
+
+				textBlocks.forEach(function(b) {
+					var length = b.texts.reduce(function(l, t) {
+						return l + t.nodeValue.length;
+					}, 0);
+
+					if(length > largestBlockLength) {
+						largestBlockElem = b.elem;
+						largestBlockLength = length;
+					}
+				});
+				
+				body = largestBlockElem.innerHTML;
+			}
+			
+			var metaTags = document.querySelectorAll("head meta[name]");
+			var meta = {
+				baseUrl: window.location.toString(),
+				title: document.title
+			};
+			
+			Array.prototype.forEach.call(metaTags, function(m) {
+				meta[m.name] = m.content;
+			});
+			
+			var data = {
+				meta: meta,
+				body: body
+			};
+			
+			return JSON.stringify(data);
 		}
 		catch(e) {
 			console.log(e);
 		}
 
-		function remove_invalid_elements(node) {
+		function remove_invalid_elements(node, hidden) {
 			var style = window.getComputedStyle(node);
 
 			var remove =
-				style.display == "none"
-				|| style.visibility == "hidden"
+				(hidden && (style.display == "none" || style.visibility == "hidden"))
 				|| node.tagName == "SCRIPT"
 				|| node.tagName == "IFRAME"
 				|| node.tagName == "OBJECT"
