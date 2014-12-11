@@ -33,6 +33,8 @@ exports.registerRoutes = function(app, esClient) {
 			};
 		});
 		
+		console.log(req.user);
+		
 			/*	var remaining = categoryItems.length;
 				
 				categoryItems.forEach(function(category) {
@@ -135,31 +137,45 @@ exports.registerRoutes = function(app, esClient) {
 		var category = config.getCategoryById(categoryId);
 		var feedIds = category.feeds.map(function(feed) { return feed.id; });
 
-		/* TODO
+		var filter = {
+			terms: {
+				feedId: feedIds
+			}
+		};
+		
 		if(!req.query.unread && req.user != null) {
-			filter.read = false;
-		} */
+			filter = {
+				and: [
+					filter,
+					{
+						not: {
+							filter: {
+								term: {
+									readBy: req.user
+								}
+							}
+						}
+					}
+				]
+			};
+		}
 	
 		esClient.search({
 			index: "feeds",
 			_source: [ "id", "feedId", "title", "thumbUrl" ],
-			sort: [ "pubDate" ],
+			sort: [ "pubDate:desc" ],
 			body: {
 				size: 150,
 				query: {
 					filtered: {
-						filter: {
-							terms: {
-								feedId: feedIds
-							}
-						}
+						filter: filter
 					}
 				}
 			}
 		}, handleAppError(res, search_complete));
            
 		function search_complete(response) {
-			console.log(response.took);
+			console.log({ queryTook: response.took });
 			
 			res.render("home/list", {
 				title: "Feed Items",
@@ -171,61 +187,6 @@ exports.registerRoutes = function(app, esClient) {
 				meta: null
 			});			
 		}
-		
-		/*
-	
-	
-		var db = esClient();
-		db.open(closeOnError(db, handleAppError(res, db_opened)));
-
-		function db_opened(conn) {
-			conn.collection("Items", closeOnError(db, handleAppError(res, items_collection_opened)));
-
-			function items_collection_opened(coll) {
-				var options = {
-					limit: 150,
-					sort: [["pubDate","asc"]]
-				};
-
-				var fields = {
-					_id: true,
-					feedId: true,
-					title: true,
-					thumbUrl: true,
-					read: true
-				};
-				
-				var categoryId = req.params.id;
-				var category = config.getCategoryById(categoryId);
-				var feedIds = category.feeds.map(function(feed) { return feed.id; });
-				
-				var filter = { feedId: { $in: feedIds } };
-				
-				if(!req.query.unread && req.user != null) {
-					filter.read = false;
-				}
-								
-				coll.find(filter, fields, options).sort({ pubDate: -1 }, closeOnError(db, handleAppError(res, items_sorted)));
-
-				function items_sorted(cursor) {
-					cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
-				}
-
-				function items_retrieved(items) {
-					if(req.user == null) items.forEach(function(i) { i.read = false; });
-					
-					res.render("home/list", {
-						title: "Feed Items",
-						items: items,
-						category: category,
-						query: req.query.q,
-						feeds: feedIds.join(','),
-						unread: req.query.unread || false,
-						meta: null
-					});
-				}
-			}
-		}*/
 	}
 
 	function view(req, res) {
@@ -247,7 +208,7 @@ exports.registerRoutes = function(app, esClient) {
 		}, handleAppError(res, search_complete));
            
 		function search_complete(response) {
-			console.log(response.took);
+			console.log({ queryTook: response.took });
 			
 			var item = response.hits.hits[0]._source;
 			var feed = config.getFeedById(item.feedId);
