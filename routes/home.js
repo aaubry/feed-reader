@@ -97,61 +97,55 @@ exports.registerRoutes = function(app, esClient) {
 
 	function search(req, res) {
 
-		var db = esClient();
-		db.open(closeOnError(db, handleAppError(res, db_opened)));
-
-		function db_opened(conn) {
-			conn.collection("Items", closeOnError(db, handleAppError(res, items_collection_opened)));
-
-			function items_collection_opened(coll) {
-				var options = {
-					limit: 150
-				};
-
-				var fields = {
-					_id: true,
-					feedId: true,
-					title: true,
-					thumbUrl: true,
-					read: true,
-					score: { $meta: "textScore" }
-				};
-				
-				var queryText = req.query.q;
-				var queryFeed = req.query.f;
-				
-				var query = {};
-				
-				if(queryText) {
-					query["$text"] = { $search: queryText };
-				}
-				
-				if(queryFeed) {
-					query.feedId = { $in: queryFeed.split(',') };
-				}
-				
-				coll.find(query, fields, options).sort({ score: { $meta: "textScore" } }, closeOnError(db, handleAppError(res, items_sorted)));
-
-				function items_sorted(cursor) {
-					cursor.toArray(closeOnError(db, cursor, handleAppError(res, items_retrieved)));
-				}
-
-				function items_retrieved(items) {
-					if(req.user == null) items.forEach(function(i) { i.read = false; });
-					
-					res.render("home/list", {
-						title: "Feed Items",
-						items: items,
-						category: {
-							name: "Search Results"
-						},
+		var filteredQuery = {};
+		
+		var queryText = req.query.q;
+		var queryFeed = req.query.f;
+		
+		if(queryText) {
+			filteredQuery.query = {
+				match: {
+					_all: {
 						query: queryText,
-						feeds: queryFeed,
-						unread: null,
-						meta: null
-					});
+						fuzziness: "AUTO"
+					}
+				}
+			};
+		}
+		
+		if(queryFeed) {
+			filteredQuery.filter = {
+				terms: {
+					feedId: queryFeed.split(',')
+				}
+			};
+		}
+		
+		esClient.search({
+			index: "feeds",
+			_source: [ "id", "feedId", "title", "thumbUrl" ],
+			body: {
+				size: 150,
+				query: {
+					filtered: filteredQuery
 				}
 			}
+		}, handleAppError(res, search_complete));
+           
+		function search_complete(response) {
+			console.log({ queryTook: response.took });
+			
+			res.render("home/list", {
+				title: "Feed Items",
+				items: response.hits.hits.map(function(i) { return i._source }),
+				category: {
+					name: "Search Results"
+				},
+				query: queryText,
+				feeds: queryFeed,
+				unread: null,
+				meta: null
+			});
 		}
 	}
 	
