@@ -184,7 +184,7 @@ exports.registerRoutes = function(app, esClient) {
 	
 		esClient.search({
 			index: "feeds",
-			_source: [ "id", "feedId", "title", "thumbUrl" ],
+			_source: [ "id", "feedId", "title", "thumbUrl", "readBy" ],
 			sort: [ "pubDate:desc" ],
 			body: {
 				size: 150,
@@ -201,7 +201,10 @@ exports.registerRoutes = function(app, esClient) {
 			
 			res.render("home/list", {
 				title: "Feed Items",
-				items: response.hits.hits.map(function(i) { return i._source }),
+				items: response.hits.hits.map(function(i) {
+					i._source.read = req.user && i._source.readBy.indexOf(req.user) >= 0;
+					return i._source;
+				}),
 				category: category,
 				query: req.query.q,
 				feeds: feedIds.join(','),

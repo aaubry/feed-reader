@@ -31,13 +31,6 @@ function page_loaded(status) {
 	function extract_main_content(selector, exclusions) {
 	
 		try {
-			// Ensure that all images have absolute uris
-			var images = document.querySelectorAll("img");
-			Array.prototype.forEach.call(images, function(i) {
-				i.setAttribute("src", i.src);
-			});
-			
-			remove_invalid_elements(document.body, false);
 			
 			if(exclusions) {
 				var nodes = document.querySelectorAll(exclusions);
@@ -51,12 +44,13 @@ function page_loaded(status) {
 			if(selector != null) {
 				var content = document.querySelector(selector);
 				if(content != null) {
+					cleanup(content, false);
 					body = content.outerHTML;
 				}
 			}
 			
 			if(body == null) {
-				remove_invalid_elements(document.body, true);
+				cleanup(document.body, true);
 			
 				assign_ids(document.body, 0);
 
@@ -113,11 +107,11 @@ function page_loaded(status) {
 			console.log(e);
 		}
 
-		function remove_invalid_elements(node, hidden) {
+		function cleanup(node, removeHidden) {
 			var style = window.getComputedStyle(node);
 
 			var remove =
-				(hidden && (style.display == "none" || style.visibility == "hidden"))
+				(removeHidden && (style.display == "none" || style.visibility == "hidden"))
 				|| node.tagName == "SCRIPT"
 				|| node.tagName == "IFRAME"
 				|| node.tagName == "OBJECT"
@@ -128,13 +122,22 @@ function page_loaded(status) {
 				node.parentNode.removeChild(node);
 				return;
 			}
+			
+			if(node.tagName == "IMG") {
+				// Ensure that all images have absolute uris
+				node.setAttribute("src", node.src);
+			}
+			
+			["style", "class", "width", "height", "color", "border"].forEach(function(n) {
+				node.removeAttribute(n);
+			});
 
 			var child = node.firstChild;
 			while(child != null) {
 				var next = child.nextSibling;
 				switch(child.nodeType) {
 					case Node.ELEMENT_NODE:
-						remove_invalid_elements(child);
+						cleanup(child, removeHidden);
 						break;
 				}
 
