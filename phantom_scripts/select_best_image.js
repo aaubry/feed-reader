@@ -5,7 +5,7 @@ var url = system.args[1];
 var width = parseInt(system.args[2]);
 var height = parseInt(system.args[3]);
 
-page.onConsoleMessage = function(msg) { console.log("console:", msg); };
+//page.onConsoleMessage = function(msg) { console.log("console:", msg); };
 page.onError = function(err) { /* Ignore errors */ }
 
 page.settings.javascriptEnabled = true;
@@ -40,61 +40,12 @@ function page_loaded(status) {
 				}
 			}
 			
-			if(bestImageSize <= 0) {
-				return "";
+			var url = null;
+			if(bestImageSize > 0) {
+				url = bestImage.src;
 			}
 			
-			return bestImage.src;
-/*			
-			console.log(bestImage.outerHTML);
-
-			var canvas = document.createElement("canvas");
-			canvas.width = width;
-			canvas.height = height;
-			
-			var scalingX = width / bestImage.offsetWidth;
-			var scalingY = height / bestImage.offsetHeight;
-			
-			var scaling;
-			if(scalingX < scalingY) {
-				var ratio = scalingX / scalingY;
-				scaling = ratio < 0.8 ? scalingX : scalingY;
-			} else {
-				var ratio = scalingY / scalingX;
-				scaling = ratio < 0.8 ? scalingY : scalingX;
-			}
-			
-			var imageWidth = Math.round(bestImage.offsetWidth * scaling);
-			var imageHeight = Math.round(bestImage.offsetHeight * scaling);
-	
-			var context = canvas.getContext("2d");
-			var cx = (width - imageWidth) / 2;
-			var cy = (height - imageHeight) / 2;
-			
-			context.drawImage(bestImage, cx, cy, imageWidth, imageHeight);
-
-			if(imageWidth < width || imageHeight < height) { 
-			
-				var pixels = context.getImageData(cx, cy, 1, 1);
-				var bg = "rgba("
-					+ pixels.data[0]
-					+ ", " + pixels.data[1]
-					+ ", " + pixels.data[2]
-					+ ", " + pixels.data[3] / 255
-					+ ")";
-					
-				var bg = "rgb(255, 255, 255)";
-					
-				context.fillStyle = bg;
-				context.fillRect(0, 0, width, height);
-				
-				context.drawImage(bestImage, cx, cy, imageWidth, imageHeight);
-			}
-			
-			var dataUrl = canvas.toDataURL("image/png");
-			console.log("here");
-			var data = dataUrl.replace(/^data:image\/(png|jpg);base64,/, "");
-			return data;*/
+			return JSON.stringify({ url: url })
 		}
 		catch(e) {
 			console.log(e);

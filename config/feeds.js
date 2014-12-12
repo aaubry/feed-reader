@@ -19,6 +19,35 @@ Feed item format:
 }
 */
 
+function template_expresso(id, name, url) {
+	return {
+		id: id,
+		name: name,
+		icon: "http://expresso.sapo.pt/favicon.ico",
+		configure: function(builder) {
+			return builder
+				.fetchFeed(url, "iso-8859-1")
+				.map(function(i) {
+					return {
+						title: i.title,
+						guid: i.link,
+						link: i.link,
+						pubDate: i.pubDate,
+						imageUrl: i.image
+					};
+				})
+				.excludeExisting()
+				.fetchPages(null, null, "#artigo", "footer, .article-social, .authoring, h1")
+				.selectImage()
+				.map(function(i) {
+					i.link = i.meta.baseUrl || i.link;
+					return i;
+				})
+			;
+		}
+	};
+}
+
 exports.categories = [
 	{	id: "bd",
 		name: "BD",
@@ -497,36 +526,12 @@ exports.categories = [
 					;
 				}
 			},*/
-			{	id: "expresso-politica",
-				name: "Expresso - Política",
-				icon: "http://expresso.sapo.pt/favicon.ico",
-				configure: function(builder) {
-					return builder
-						.fetchFeed("http://expresso.sapo.pt/static/rss/politica_25630.xml", "iso-8859-1")
-						.map(function(i) {
-							return {
-								title: i.title,
-								guid: i.link,
-								link: i.link,
-								pubDate: i.pubDate,
-								imageUrl: i.image
-							};
-						})
-						.excludeExisting()
-						.fetchPages(null, null, "#artigo", "footer, .article-social, .authoring, h1")
-						.map(function(i) {
-							return {
-								title: i.title,
-								guid: i.guid,
-								link: i.meta.baseUrl || i.link,
-								body: i.body,
-								pubDate: i.pubDate,
-								imageUrl: i.image
-							};
-						})
-					;
-				}
-			}
+			
+			template_expresso("expresso-politica", "Expresso - Política", "http://expresso.sapo.pt/static/rss/politica_25630.xml"),
+			template_expresso("expresso-sociedade", "Expresso - Sociedade", "http://expresso.sapo.pt/static/rss/sociedade_25194.xml"),
+			template_expresso("expresso-internacional", "Expresso - Internacional", "http://expresso.sapo.pt/static/rss/internacional_25629.xml"),
+			template_expresso("expresso-economia", "Expresso - Economia", "http://expresso.sapo.pt/static/rss/economia_23413.xml"),
+			template_expresso("expresso-cultura", "Expresso - Cultura", "http://expresso.sapo.pt/static/rss/cultura_25038.xml")
 		]
 	},
 	{	id: "developer-misery",

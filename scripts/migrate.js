@@ -58,6 +58,8 @@ function db_opened(err, conn) {
 						try {
 							if(item.read) {
 								item.readBy = ["brisemec"];
+							} else {
+								item.readBy = [];
 							}
 							
 							item.id = item._id;

@@ -202,7 +202,7 @@ exports.registerRoutes = function(app, esClient) {
 			res.render("home/list", {
 				title: "Feed Items",
 				items: response.hits.hits.map(function(i) {
-					i._source.read = req.user && i._source.readBy.indexOf(req.user) >= 0;
+					i._source.read = req.user && i._source.readBy && i._source.readBy.indexOf(req.user) >= 0;
 					return i._source;
 				}),
 				category: category,
