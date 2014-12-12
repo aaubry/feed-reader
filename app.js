@@ -29,6 +29,11 @@ process.on('SIGTERM', function () {
 	});
 });
 
+var users = {
+	brisemec: { protectedPassword: "$2a$10$qermVMgGvGiiCLw3lqFGaecyuGTwmjtsl.JmCWQSKlUpFRRLQURWu" },
+	catarina: { protectedPassword: "$2a$10$4Z8sjJuJdryt21BECBurteANJ2dkEtamSBJafulN/MKr0/YJx76WO" }
+};
+
 function launchServer(secure) {
 	var app = express();
 
@@ -42,17 +47,23 @@ function launchServer(secure) {
 	//app.use(express.logger({ stream: logFile }));
 
 	if(secure) {
-		var protectedPassword = "$2a$10$qermVMgGvGiiCLw3lqFGaecyuGTwmjtsl.JmCWQSKlUpFRRLQURWu";
-		var validPassword = null;
-		app.use(express.basicAuth(function(user, pass) {
-			if(user !== "brisemec") return false;
-			if(validPassword != null) {
-				return validPassword === pass;
+		app.use(express.basicAuth(function(username, pass) {
+		
+			var user = users[username];
+			if(user == null) {
+				return false;
 			}
 			
-			var result = bcrypt.compareSync(pass, protectedPassword);
-			if(result) validPassword = pass;
-			return result ? user : null;
+			if(user.validPassword != null) {
+				return user.validPassword === pass;
+			}
+			
+			var result = bcrypt.compareSync(pass, user.protectedPassword);
+			if(result) {
+				user.validPassword = pass;
+			}
+			
+			return result ? username : null;
 		}));
 	}
 	
