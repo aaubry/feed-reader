@@ -1,97 +1,101 @@
-<a class="button" id="group" href="#groupped">Group</a>
-<a class="button" href="/">Categories</a>
-<% if(unread !== null) { %>
-	<% if(unread) { %>
-		<a class="button" href="?">Unread</a>
-	<% } else { %>
-		<a class="button" href="?unread=true">All</a>
-	<% } %>
-<% } %>
-<h1><%= category.name %></h1>
-<div id="items">
-	<ul class="feed-items" id="all-items">
-		<% for(var i = 0; i < items.length; ++i) {
-			var item = items[i];%>
-			<li data-feedid="<%= item.feedId %>" data-order="<%= i %>" class="<%= item.read ? "read" : "unread" %>">
-				<a href="/i/<%= item.id %>" title="<%= item.title %>">
-					<span><%- item.title %></span>
-					<% if(item.thumbUrl) { %>
-						<img class="thumb" src="<%= item.thumbUrl %>" />
-					<% } %>
-				</a>
-			</li>
+<div>
+	<div class="actions">
+		<a id="group" href="#groupped">Group</a>
+		<a href="/">Categories</a>
+		<% if(unread !== null) { %>
+			<% if(unread) { %>
+				<a href="?">Unread</a>
+			<% } else { %>
+				<a href="?unread=true">All</a>
+			<% } %>
 		<% } %>
-	</ul>
-</div>
-<script type="text/javascript">
-	var feeds = <%- JSON.stringify(category.feeds) %>;
-	
-	function toggleGrouping(shouldGroup) {
+	</div>
+	<h1><%= category.name %></h1>
+	<div id="items">
+		<ul class="feed-items" id="all-items">
+			<% for(var i = 0; i < items.length; ++i) {
+				var item = items[i];%>
+				<li data-feedid="<%= item.feedId %>" data-order="<%= i %>" class="<%= item.read ? "read" : "unread" %>">
+					<a href="/i/<%= item.id %>" title="<%= item.title %>">
+						<span><%- item.title %></span>
+						<% if(item.thumbUrl) { %>
+							<img class="thumb" src="<%= item.thumbUrl %>" />
+						<% } %>
+					</a>
+				</li>
+			<% } %>
+		</ul>
+	</div>
+	<script type="text/javascript">
+		var feeds = <%- JSON.stringify(category.feeds) %>;
 		
-		var groupButton = document.getElementById("group");
-		
-		var container = document.getElementById("all-items");
-		if(shouldGroup) {
-			groupButton.href = "#";
-
-			var groupsByFeedId = {};
-			feeds.forEach(function(feed) {
-				var heading = document.createElement("h2");
-				var icon = document.createElement("img");
-				icon.src = feed.icon || "favicon.ico";
-				heading.appendChild(icon);
-				heading.appendChild(document.createTextNode(feed.name));
-				container.parentNode.insertBefore(heading, container);
-				
-				var group = document.createElement("ul");
-				group.className = "feed-items";
-				container.parentNode.insertBefore(group, container);
-				groupsByFeedId[feed.id] = group;
-			});
+		function toggleGrouping(shouldGroup) {
 			
-			var itemsByFeedId = [];
-			var currentItem = container.firstChild;
-			while(currentItem != null) {
-				var nextItem = currentItem.nextSibling;
-				if(currentItem.nodeType == 1) {
-					var feedId = currentItem.getAttribute("data-feedid");
-					groupsByFeedId[feedId].appendChild(currentItem);
+			var groupButton = document.getElementById("group");
+			
+			var container = document.getElementById("all-items");
+			if(shouldGroup) {
+				groupButton.href = "#";
+
+				var groupsByFeedId = {};
+				feeds.forEach(function(feed) {
+					var heading = document.createElement("h2");
+					var icon = document.createElement("img");
+					icon.src = feed.icon || "favicon.ico";
+					heading.appendChild(icon);
+					heading.appendChild(document.createTextNode(feed.name));
+					container.parentNode.insertBefore(heading, container);
+					
+					var group = document.createElement("ul");
+					group.className = "feed-items";
+					container.parentNode.insertBefore(group, container);
+					groupsByFeedId[feed.id] = group;
+				});
+				
+				var itemsByFeedId = [];
+				var currentItem = container.firstChild;
+				while(currentItem != null) {
+					var nextItem = currentItem.nextSibling;
+					if(currentItem.nodeType == 1) {
+						var feedId = currentItem.getAttribute("data-feedid");
+						groupsByFeedId[feedId].appendChild(currentItem);
+					}
+					
+					currentItem = nextItem;
 				}
 				
-				currentItem = nextItem;
+				container.parentNode.removeChild(container);
+			} else {
+				groupButton.href = "#groupped";
+
+				container = document.createElement("ul");
+				container.className = "feed-items";
+				container.id = "all-items";
+				
+				var itemsContainer = document.getElementById("items");
+				
+				var items = itemsContainer.querySelectorAll("ul > li");
+				var sortedItems = new Array(items.length);
+				Array.forEach(items, function(item) {
+					sortedItems[parseInt(item.getAttribute("data-order"))] = item;
+				});
+				Array.forEach(sortedItems, function(item) {
+					container.appendChild(item);
+				});
+				
+				itemsContainer.innerHTML = "";
+				itemsContainer.appendChild(container);
 			}
-			
-			container.parentNode.removeChild(container);
-		} else {
-			groupButton.href = "#groupped";
-
-			container = document.createElement("ul");
-			container.className = "feed-items";
-			container.id = "all-items";
-			
-			var itemsContainer = document.getElementById("items");
-			
-			var items = itemsContainer.querySelectorAll("ul > li");
-			var sortedItems = new Array(items.length);
-			Array.forEach(items, function(item) {
-				sortedItems[parseInt(item.getAttribute("data-order"))] = item;
-			});
-			Array.forEach(sortedItems, function(item) {
-				container.appendChild(item);
-			});
-			
-			itemsContainer.innerHTML = "";
-			itemsContainer.appendChild(container);
 		}
-	}
 
-	function updateContent() {
-		var isGroupped = document.getElementById("all-items") == null;
-		var shouldGroup = window.location.hash == "#groupped";
-		
-		if(isGroupped != shouldGroup) toggleGrouping(shouldGroup);
-	}
+		function updateContent() {
+			var isGroupped = document.getElementById("all-items") == null;
+			var shouldGroup = window.location.hash == "#groupped";
+			
+			if(isGroupped != shouldGroup) toggleGrouping(shouldGroup);
+		}
 
-	window.addEventListener("popstate", updateContent);
-	window.addEventListener("load", updateContent);
-</script>
+		window.addEventListener("popstate", updateContent);
+		window.addEventListener("load", updateContent);
+	</script>
+</div>

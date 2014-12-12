@@ -12,8 +12,15 @@ a {
 }
 
 h1 { color: #555; }
-h2 { color: #555; }
+h2 { color: #555; font-size: 18px; }
 h2 img { margin-right: 5px; width: 16px; height: 16px; }
+h2 a { text-decoration: none; }
+
+hr {
+	height: 1px;
+	border: none;
+	border-bottom: solid #ccc 1px;
+}
 
 ul.feed-items {
 	margin: 0;
@@ -66,11 +73,6 @@ ul.feed-items li a {
 
 ul.feed-items li a:hover {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) inset, 0 0 10px rgba(200, 10, 16, 0.5);
-}
-
-.button {
-	float: right;
-	margin: 30px 0 0 10px;
 }
 
 ul.feed-items li span {
@@ -157,44 +159,71 @@ ul.links li {
 	padding: 2px 5px;
 }
 
-form {
+form.search {
 	display: table;
 }
 
-form > .field {
+form.search > .field {
 	display: table-row;
 }
 
-form > .field > span {
+form.search > .field > span {
 	display: table-cell;
 }
 
-form > .field .error_msg {
+form.search > .field .error_msg {
 }
 
-form > .field label {
+form.search > .field label {
 	vertical-align: top;
 	padding: 0 1em 1em 0;
 }
 
-form > .field > input,
-form > .field > select,
-form > .field > textarea {
+form.search > .field > input,
+form.search > .field > select,
+form.search > .field > textarea {
 	display: table-cell;
 	width: 430px;
 	margin-bottom: 1em;
 }
 
-form > .field > textarea {
+form.search > .field > textarea {
 	height: 300px;
 }
 
-form > .buttons {
+form.search > .buttons {
     caption-side: bottom;
     display: table-caption;
     text-align: right;
 }
 
+.actions {
+	float: right;
+}
+
+.actions form {
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+
+.actions button, .actions a {
+	border: solid #777 1px;
+	border-radius: 2px;
+	padding: 3px 5px;
+	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	line-height: 14px;
+	margin: 5px 0px 5px 5px;
+	text-decoration: none;
+	color: black;
+	background-color: #F0F0F0;
+	cursor: pointer;
+	display: inline-block;
+}
+
+.actions a {
+	padding: 4px 7px;
+}
 
 @media screen and (max-width: 480px) {
 	body { padding: 5px; }

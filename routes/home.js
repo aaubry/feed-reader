@@ -18,6 +18,7 @@ exports.registerRoutes = function(app, esClient) {
 	app.get("/", categories);
 	app.get("/search", search);
 	app.post("/_slack", slack);
+	app.post("/unread", unread);
 	//app.post("/_slackcmd", slackcmd);
 	app.get("/:id", list);
 	app.get("/i/:id", view);
@@ -231,9 +232,28 @@ exports.registerRoutes = function(app, esClient) {
            
 		function search_complete(response) {
 			console.log({ queryTook: response.took });
-			
+
 			var item = response.hits.hits[0]._source;
+			
+			// Mark as read
+			if(req.user != null) {
+				esClient.update({
+					index: "feeds",
+					type: "item",
+					id: item.id,
+					body: {
+						script: 'if(ctx._source.readBy.contains(user)) { ctx.op = "none" } else { ctx._source.readBy += user }',
+						params: {
+							user: req.user
+						}
+					}
+				}, function(err, r) {
+					if(err) console.log(r);
+				});
+			}
+			
 			var feed = config.getFeedById(item.feedId);
+			var category = config.getCategoryByFeedId(item.feedId);
 			
 			res.render("home/view", {
 				title: item.title,
@@ -246,7 +266,7 @@ exports.registerRoutes = function(app, esClient) {
 						type: "article",
 						title: item.title,
 						description: item.title,
-						url: "http://feed.iron.aaubry.net/i/" + item._id,
+						url: "http://feed.iron.aaubry.net/i/" + item.id,
 						site_name: feed.name,
 						image: item.thumbUrl
 					},
@@ -261,8 +281,40 @@ exports.registerRoutes = function(app, esClient) {
 						"image:src": item.thumbUrl
 					}
 				},
-				base: item.link
+				base: item.link,
+				category: category
 			});
+		}
+	}
+
+	function unread(req, res) {
+	
+		// Mark as read
+		if(req.user != null) {
+			esClient.update({
+				index: "feeds",
+				type: "item",
+				id: req.body.id,
+				body: {
+					script: 'if(!ctx._source.readBy.contains(user)) { ctx.op = "none" } else { ctx._source.readBy -= user }',
+					params: {
+						user: req.user
+					}
+				}
+			}, handleAppError(res, update_complete));
+		} else {
+			res.status(404).send("Not found");
+		}
+		
+		function update_complete() {
+			esClient.indices.flush({
+				index: "feeds"
+			}, handleAppError(res, flush_complete));
+		
+			function flush_complete() {
+				var category = config.getCategoryByFeedId(req.body.feedId);
+				res.redirect("/" + category.id);
+			}
 		}
 	}
 	
@@ -426,21 +478,21 @@ exports.registerRoutes = function(app, esClient) {
 				//text: item.title,
 				text: "<" + item.link + "|" + item.title + ">" + thumbUrl,
 				//text: item.link,
-				//text: "<" + "http://feed.iron.aaubry.net/i/" + item._id + "|" + item.title + ">",
-				//text: "http://feed.iron.aaubry.net/i/" + item._id,
+				//text: "<" + "http://feed.iron.aaubry.net/i/" + item.id + "|" + item.title + ">",
+				//text: "http://feed.iron.aaubry.net/i/" + item.id,
 				mrkdwn: true,
 				unfurl_links: true,
 				unfurl_media: true/*,
 				attachments: [
 					{
-						"fallback": "http://feed.iron.aaubry.net/i/" + item._id,
-						"text": "http://feed.iron.aaubry.net/i/" + item._id
+						"fallback": "http://feed.iron.aaubry.net/i/" + item.id,
+						"text": "http://feed.iron.aaubry.net/i/" + item.id
 					}
 				]*/
 			};
 			
 			/*data = {
-				text: "http://feed.iron.aaubry.net/i/" + item._id
+				text: "http://feed.iron.aaubry.net/i/" + item.id
 			};*/
 			
 			console.log(data);
