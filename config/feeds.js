@@ -491,13 +491,14 @@ exports.categories = [
 								guid: i.comments,
 								link: i.link,
 								links: [
-									{ title: "Comments", link: i.comments }
+									{ title: "Comments", link: i.comments.replace("https://news.ycombinator.com/item?id=", "http://ihackernews.com/comments/") }
 								]
 							};
 						})
+						.dump();/*
 						.excludeExisting()
 						.fetchPages()
-						.selectImage();
+						.selectImage();*/
 				}
 			}
 		]
