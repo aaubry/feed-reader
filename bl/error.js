@@ -5,6 +5,7 @@ function handleAppError(res, cb) {
 
 	return function(err, val) {
 		if(err) {
+			console.log(err);
 			res.send(500, { error: err });
 		} else {
 			cb(val);
