@@ -6,18 +6,30 @@ var system = require("system");
 //var url = "http://blogs.wsj.com/digits/2013/08/25/starcraft-gameplay-boosts-mental-flexibility-says-study/?mod=WSJBlog";
 //var url = "http://www.motherjones.com/politics/2013/08/mesh-internet-privacy-nsa-isp";
 
-var url = system.args[1];
-var selector = system.args[2];
-var exclusions = system.args[3];
+var quiet = false;
+var i = 1;
+if(system.args[i] == "-q") {
+	quiet = true;
+	++i;
+}
+
+var url = system.args[i++];
+var selector = system.args[i++];
+var exclusions = system.args[i++];
 
 page.settings.javascriptEnabled = true;
 page.settings.loadImages = false;
 page.settings.userAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36";
 
-//page.onConsoleMessage = function(msg) { console.log("console:", msg); };
-page.onError = function(err) {
-	//console.log(err);
-	/* Ignore errors */
+if(!quiet) {
+	page.onConsoleMessage = function(msg) { console.log("console:", msg); };
+	page.onError = function(err) {
+		console.log(err);
+	}
+} else {
+	page.onError = function(err) {
+		/* Ignore errors */
+	}
 }
 
 page.open(url, page_loaded);

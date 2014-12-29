@@ -13,6 +13,8 @@ exports.execute = function(scriptFileName /*, arg1, arg2, arg3, cb*/) {
 	var cb = arguments[arguments.length - 1];
 	args.unshift("--web-security=no");
 	args.unshift("--disk-cache=yes");
+	args.unshift("--ignore-ssl-errors=yes");
+	args.unshift("--ssl-protocol=any");
 
 	var stdout = [];
 	var stderr = [];

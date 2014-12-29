@@ -11,7 +11,7 @@ exports.builder = function(urlField, targetField, selector, exclusions) {
 		handler: function(item, args, context, cb) {
 			try {
 				var url = item[urlField];
-				phantom.execute("extract_main_content.js", url, selector, exclusions, html_extracted);
+				phantom.execute("extract_main_content.js", "-q", url, selector, exclusions, html_extracted);
 			} catch(err) { return cb(err); }
 
 			function html_extracted(err, jsonData) {
