@@ -22,6 +22,10 @@
 			<button type="submit">Unread</button>
 		</form>
 		<a href="/<%= category.id %>">Back</a>
+		<form method="post" action="/share">
+			<input type="hidden" name="id" value="<%= item.id %>" />
+			<input type="text" name="email" placeholder="someone@gmail.com" /><button type="submit">Share</button>
+		</form>
 	</div>
 
 	<% if(item.links != null && item.links.length != 0) { %>

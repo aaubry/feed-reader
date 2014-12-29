@@ -219,6 +219,19 @@ form.search > .buttons {
 	display: inline-block;
 }
 
+.actions input[type=text] {
+	border: solid #777 1px;
+	border-radius: 2px 0 0 2px;
+	height: 24px;
+	width: 150px;
+	border-right: none;
+}
+
+.actions input[type=text] + button {
+	margin-left: 0;
+	border-radius: 0 2px 2px 0;
+}
+
 .actions a {
 	padding: 4px 7px;
 }

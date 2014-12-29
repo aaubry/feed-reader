@@ -1,3 +1,5 @@
+var emailClient = require("emailjs/email");
+
 var forms = require("forms"),
     fields = forms.fields,
     validators = forms.validators,
@@ -19,6 +21,7 @@ exports.registerRoutes = function(app, esClient) {
 	app.get("/search", search);
 	app.post("/_slack", slack);
 	app.post("/unread", unread);
+	app.post("/share", share);
 	//app.post("/_slackcmd", slackcmd);
 	app.get("/:id", list);
 	app.get("/i/:id", view);
@@ -257,6 +260,11 @@ exports.registerRoutes = function(app, esClient) {
 			
 			var feed = config.getFeedById(item.feedId);
 			var category = config.getCategoryByFeedId(item.feedId);
+
+			var thumbUrl = item.thumbUrl;
+			if(thumbUrl[0] == "/") {
+				thumbUrl = "http://feed.iron.aaubry.net" + thumbUrl;
+			}
 			
 			res.render("home/view", {
 				title: item.title,
@@ -271,7 +279,7 @@ exports.registerRoutes = function(app, esClient) {
 						description: item.title,
 						url: "http://feed.iron.aaubry.net/i/" + item.id,
 						site_name: feed.name,
-						image: item.thumbUrl
+						image: thumbUrl
 					},
 					article: {
 						publisher: item.link,
@@ -281,7 +289,7 @@ exports.registerRoutes = function(app, esClient) {
 						card: "summary_large_image",
 						site: feed.name,
 						domain: feed.name,
-						"image:src": item.thumbUrl
+						"image:src": thumbUrl
 					}
 				},
 				base: item.link,
@@ -418,6 +426,95 @@ exports.registerRoutes = function(app, esClient) {
 			}
 		}
 	}*/
+
+	function share(req, res) {
+		esClient.search({
+			index: "feeds",
+			body: {
+				size: 1,
+				query: {
+					filtered: {
+						filter: {
+							term: {
+								id: req.body.id
+							}
+						}
+					}
+				}
+			}
+		}, handleAppError(res, search_complete));
+           
+		function search_complete(response) {
+			console.log({ queryTook: response.took });
+
+			var item = response.hits.hits[0]._source;
+			
+			var feed = config.getFeedById(item.feedId);
+			var category = config.getCategoryByFeedId(item.feedId);
+
+			var server = emailClient.server.connect({
+				user: config.email.username, 
+				password: config.email.password, 
+				host: config.email.smtp, 
+				ssl: false
+			});
+			
+			var url = "http://feed.iron.aaubry.net/i/" + item.id;
+			
+			var thumbUrl = item.thumbUrl;
+			if(thumbUrl[0] == "/") {
+				thumbUrl = "http://feed.iron.aaubry.net" + thumbUrl;
+			}
+			console.log(thumbUrl);
+
+			var message = {
+				from: config.email.username, 
+				to: req.body.email,
+				subject: item.title,
+				text: url,
+				attachment: [
+					{ data: "<html><img src='" + thumbUrl + "' /><br/><a href='" + url + "'>" + url + "</a></html>", alternative: true }
+				]
+			};
+
+			server.send(message, handleAppError(res, message_sent));
+			
+			function message_sent(message) {
+				res.send("Shared to " + req.body.email);
+			}
+
+			/*
+			res.render("home/view", {
+				title: item.title,
+				item: item,
+				query: req.query.q,
+				feeds: item.feedId,
+				meta: {
+					og: {
+						locale:"en_US",
+						type: "article",
+						title: item.title,
+						description: item.title,
+						url: "http://feed.iron.aaubry.net/i/" + item.id,
+						site_name: feed.name,
+						image: item.thumbUrl
+					},
+					article: {
+						publisher: item.link,
+						section: "TODO"
+					},
+					twitter: {
+						card: "summary_large_image",
+						site: feed.name,
+						domain: feed.name,
+						"image:src": item.thumbUrl
+					}
+				},
+				base: item.link,
+				category: category
+			});*/
+		}		
+	}
 	
 	function slack(req, res) {
 		
