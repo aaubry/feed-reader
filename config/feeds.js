@@ -495,10 +495,9 @@ exports.categories = [
 								]
 							};
 						})
-						.dump();/*
 						.excludeExisting()
 						.fetchPages()
-						.selectImage();*/
+						.selectImage();
 				}
 			}
 		]
