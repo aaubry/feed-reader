@@ -57,7 +57,7 @@ exports.categories = [
 				icon: "images/smbc.png",
 				configure: function(builder) {
 					return builder
-						.fetchFeed("http://feeds.feedburner.com/smbc-comics/PvLb?format=xml")
+						.fetchFeed("http://www.smbc-comics.com/rss.php")
 						.map(function(i) {
 							return {
 								title: i.title,
