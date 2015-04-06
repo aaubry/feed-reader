@@ -262,7 +262,7 @@ exports.registerRoutes = function(app, esClient) {
 			var category = config.getCategoryByFeedId(item.feedId);
 
 			var thumbUrl = item.thumbUrl;
-			if(thumbUrl[0] == "/") {
+			if(thumbUrl && thumbUrl[0] == "/") {
 				thumbUrl = "http://feed.iron.aaubry.net" + thumbUrl;
 			}
 			
