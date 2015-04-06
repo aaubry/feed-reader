@@ -113,6 +113,33 @@ ul.feed-items li img.icon {
     top: 2px;
 }
 
+.article-view {
+	padding-bottom: 130px;
+}
+
+.category-footer { display: none; }
+.article-view .category-header,
+.article-view ul.feed-items { display: none; }
+
+.article-view .category-footer {
+	display: table;
+	width: 100%;
+	margin-top: 15px;
+}
+
+.article-view .category-footer .actions {
+	display: table-row;
+	float: none;
+}
+
+.article-view .category-footer .actions a {
+	display: table-cell;
+	width: 50%;
+	text-align: center;
+	height: 35px;
+	vertical-align: middle;
+}
+
 .article img {
 	height: auto;
 	max-width: 100%;

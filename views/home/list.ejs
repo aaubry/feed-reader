@@ -1,17 +1,26 @@
-<div>
-	<div class="actions">
-		<a id="group" href="#groupped">Group</a>
-		<a href="/">Categories</a>
-		<% if(unread !== null) { %>
-			<% if(unread) { %>
-				<a href="?">Unread</a>
-			<% } else { %>
-				<a href="?unread=true">All</a>
+<div id="categoryList">
+	<div class="category-header">
+		<div class="actions">
+			<a href="/">Categories</a>
+			<% if(unread !== null) { %>
+				<% if(unread) { %>
+					<a href="?">Unread</a>
+				<% } else { %>
+					<a href="?unread=true">All</a>
+				<% } %>
 			<% } %>
-		<% } %>
+		</div>
+		<h1><%= category.name %></h1>
 	</div>
-	<h1><%= category.name %></h1>
-	<div id="items">
+	<div id="articleContainer"></div>
+	<div class="clear"></div>
+	<div class="category-footer">
+		<div class="actions">
+			<a href="/<%= category.id %>" data-offset="-1" id="btPrevious">«</a>
+			<a href="/<%= category.id %>" data-offset="1" id="btNext">»</a>
+		</div>
+	</div>
+	<div>
 		<ul class="feed-items" id="all-items">
 			<% for(var i = 0; i < items.length; ++i) {
 				var item = items[i];%>
@@ -27,75 +36,42 @@
 		</ul>
 	</div>
 	<script type="text/javascript">
-		var feeds = <%- JSON.stringify(category.feeds) %>;
-		
-		function toggleGrouping(shouldGroup) {
-			
-			var groupButton = document.getElementById("group");
-			
-			var container = document.getElementById("all-items");
-			if(shouldGroup) {
-				groupButton.href = "#";
-
-				var groupsByFeedId = {};
-				feeds.forEach(function(feed) {
-					var heading = document.createElement("h2");
-					var icon = document.createElement("img");
-					icon.src = feed.icon || "favicon.ico";
-					heading.appendChild(icon);
-					heading.appendChild(document.createTextNode(feed.name));
-					container.parentNode.insertBefore(heading, container);
+		$(function() {
+			$("#all-items li a")
+				.click(function(evt) {
+					evt.preventDefault();
 					
-					var group = document.createElement("ul");
-					group.className = "feed-items";
-					container.parentNode.insertBefore(group, container);
-					groupsByFeedId[feed.id] = group;
+					window.history.pushState({ }, this.title, this.href);
+					$("#categoryList").addClass("article-view");
+					$("#articleContainer").load(this.href + " #article");
 				});
 				
-				var itemsByFeedId = [];
-				var currentItem = container.firstChild;
-				while(currentItem != null) {
-					var nextItem = currentItem.nextSibling;
-					if(currentItem.nodeType == 1) {
-						var feedId = currentItem.getAttribute("data-feedid");
-						groupsByFeedId[feedId].appendChild(currentItem);
-					}
-					
-					currentItem = nextItem;
+			$(window).on("popstate", function(evt) {
+				var state = evt.originalEvent.state;
+				if(state == null) {
+					$("#categoryList").removeClass("article-view");
+					$("#articleContainer").html("");
+				} else {
+					$("#categoryList").addClass("article-view");
+					$("#articleContainer").load(window.location + " #article");
 				}
-				
-				container.parentNode.removeChild(container);
-			} else {
-				groupButton.href = "#groupped";
-
-				container = document.createElement("ul");
-				container.className = "feed-items";
-				container.id = "all-items";
-				
-				var itemsContainer = document.getElementById("items");
-				
-				var items = itemsContainer.querySelectorAll("ul > li");
-				var sortedItems = new Array(items.length);
-				Array.forEach(items, function(item) {
-					sortedItems[parseInt(item.getAttribute("data-order"))] = item;
-				});
-				Array.forEach(sortedItems, function(item) {
-					container.appendChild(item);
-				});
-				
-				itemsContainer.innerHTML = "";
-				itemsContainer.appendChild(container);
-			}
-		}
-
-		function updateContent() {
-			var isGroupped = document.getElementById("all-items") == null;
-			var shouldGroup = window.location.hash == "#groupped";
+			});
 			
-			if(isGroupped != shouldGroup) toggleGrouping(shouldGroup);
-		}
-
-		window.addEventListener("popstate", updateContent);
-		window.addEventListener("load", updateContent);
+			$(".category-footer .actions a").click(function(evt) {
+				var offset = parseInt($(this).attr("data-offset"));
+				var currentId = window.location + "";
+				var current = $("#all-items a")
+					.filter(function() {
+						return this.href == currentId;
+					})
+					.closest("li");
+				
+				var target = offset == 1 ? current.next() : current.prev();
+				if(target) {
+					evt.preventDefault();
+					target.find("a").click();
+				}
+			});
+		});
 	</script>
 </div>
