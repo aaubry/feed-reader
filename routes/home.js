@@ -266,6 +266,8 @@ exports.registerRoutes = function(app, esClient) {
 				thumbUrl = "http://feed.iron.aaubry.net" + thumbUrl;
 			}
 			
+			res.setHeader("Cache-Control", "public, max-age=" + (60 * 60 * 24));
+			
 			res.render("home/view", {
 				title: item.title,
 				item: item,
