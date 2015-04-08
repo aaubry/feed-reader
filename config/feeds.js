@@ -534,8 +534,8 @@ exports.categories = [
 			template_expresso("expresso-cultura", "Expresso - Cultura", "http://expresso.sapo.pt/static/rss/cultura_25038.xml")
 		]
 	},
-	{	id: "developer-misery",
-		name: "Developer Misery",
+	{	id: "developer-reactions",
+		name: "Developer Reactions",
 		feeds: [
 			{	id: "devreac",
 				name: "Developer Reactions",
@@ -578,6 +578,29 @@ exports.categories = [
 							};
 						})
 						.excludeExisting();
+				}
+			}
+		]
+	},
+	{	id: "vdm",
+		name: "Vie de merde",
+		feeds: [
+			{	id: "vdm",
+				name: "Vie de merde",
+				icon: "http://cdn7.viedemerde.fr/fmylife/images/favicon.fr.ico",
+				configure: function(builder) {
+					return builder
+						.fetchFeed("http://feeds.betacie.com/viedemerde")
+						.map(function(i) {
+							return {
+								title: /^\s*(.*[^\s])\s*$/.exec(i.author)[1] || i.author || i.title,
+								body: i.content.replace(/<[^>]+>/g, ""),
+								guid: i.id,
+								link: i.id,
+								pubDate: i.published
+							};
+						})
+					;
 				}
 			}
 		]
