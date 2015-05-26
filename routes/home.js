@@ -13,6 +13,8 @@ var config = require("../config/config");
 
 var https = require("https");
 
+var request = require("request");
+
 exports.registerRoutes = function(app, esClient) {
 
 	app.get("/robots.txt", robots);
@@ -538,9 +540,9 @@ exports.registerRoutes = function(app, esClient) {
 		
 		esClient.search({
 			index: "feeds",
-			_source: [ "id", "link", "title", "thumbUrl" ],
+			_source: [ "id", "link", "title", "thumbUrl", "body" ],
 			body: {
-				size: 20,
+				size: feedId != "vdm" ? 20 : 100,
 				query: {
 					filtered: {
 						query: query,
@@ -564,6 +566,25 @@ exports.registerRoutes = function(app, esClient) {
 			
 			var itemIndex = Math.floor(Math.random() * response.hits.hits.length);
 			var item = response.hits.hits[itemIndex]._source;
+
+			res.set("Content-Type", "application/json");
+			
+			if(feedId == "vdm") {
+				var queryUrl = "http://api.mymemory.translated.net/get?de=aaubry%40gmail.com&langpair=fr|en&q=" + encodeURIComponent(item.body);
+				
+				request(queryUrl, function(err, response, body) {
+					var translationData = JSON.parse(body);
+					
+					var data = {
+						username: item.title,
+						text: translationData.responseData.translatedText
+					};
+				
+					res.json(data);
+				});
+				
+				return;
+			}
 			
 			var thumbUrl = "";
 			var useThumb = ["devreac", "vdp", "oatmeal"].indexOf(feedId) >= 0;
@@ -577,29 +598,12 @@ exports.registerRoutes = function(app, esClient) {
 			}
 			
 			var data = {
-				//text: item.title,
 				text: "<" + item.link + "|" + item.title + ">" + thumbUrl,
-				//text: item.link,
-				//text: "<" + "http://feed.iron.aaubry.net/i/" + item.id + "|" + item.title + ">",
-				//text: "http://feed.iron.aaubry.net/i/" + item.id,
 				mrkdwn: true,
 				unfurl_links: true,
-				unfurl_media: true/*,
-				attachments: [
-					{
-						"fallback": "http://feed.iron.aaubry.net/i/" + item.id,
-						"text": "http://feed.iron.aaubry.net/i/" + item.id
-					}
-				]*/
+				unfurl_media: true
 			};
 			
-			/*data = {
-				text: "http://feed.iron.aaubry.net/i/" + item.id
-			};*/
-			
-			console.log(data);
-			
-			res.set("Content-Type", "application/json");
 			res.json(data);
 		}
 	}

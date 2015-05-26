@@ -44,7 +44,6 @@ function launchServer(secure) {
 	app.use(express.favicon());
 	app.use(express.logger());
 	app.use(express.urlencoded()); // to support URL-encoded bodies
-	app.disable("etag");
 	//app.use(express.logger({ stream: logFile }));
 
 	if(secure) {
