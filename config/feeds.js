@@ -491,7 +491,7 @@ exports.categories = [
 								guid: i.comments,
 								link: i.link,
 								links: [
-									{ title: "Comments", link: i.comments.replace("https://news.ycombinator.com/item?id=", "http://ihackernews.com/comments/") }
+									{ title: "Comments", link: i.comments }
 								]
 							};
 						})
@@ -594,12 +594,13 @@ exports.categories = [
 						.map(function(i) {
 							return {
 								title: /^\s*(.*[^\s])\s*$/.exec(i.author)[1] || i.author || i.title,
-								body: i.content.replace(/<[^>]+>/g, ""),
+								body: i.content.replace(/<[^>]+>/g, "").replace("&quot;", '"'),
 								guid: i.id,
 								link: i.id,
 								pubDate: i.published
 							};
 						})
+						.excludeExisting()
 					;
 				}
 			}
